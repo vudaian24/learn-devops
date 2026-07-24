@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Học DevOps — Lộ trình từng bước</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --ink:#1e2733;
+    --ink-soft:#66707c;
+    --accent:#2f6fed;
+    --accent-dark:#1d4fbe;
+    --accent-bg:#e8f0ff;
+    --border:#dfe4ec;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.6;
+  }
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:64px 24px 80px;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+    margin:0 0 10px;
+  }
+  h1{
+    font-size:32px;
+    margin:0 0 12px;
+  }
+  .lead{
+    color:var(--ink-soft);
+    font-size:16px;
+    max-width:56ch;
+    margin:0 0 40px;
+  }
+  .steps{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  a.step-card{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 22px;
+    text-decoration:none;
+    color:inherit;
+    transition:border-color .15s, box-shadow .15s, transform .15s;
+  }
+  a.step-card:hover{
+    border-color:var(--accent);
+    box-shadow:0 4px 14px rgba(47,111,237,0.12);
+    transform:translateY(-1px);
+  }
+  .step-num{
+    flex:none;
+    width:40px;
+    height:40px;
+    border-radius:8px;
+    background:var(--accent-bg);
+    color:var(--accent-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:15px;
+    font-variant-numeric:tabular-nums;
+  }
+  .step-body h3{
+    margin:0 0 4px;
+    font-size:17px;
+  }
+  .step-body p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+  .step-arrow{
+    margin-left:auto;
+    color:var(--accent);
+    font-size:18px;
+    flex:none;
+  }
+  .step-card.disabled{
+    opacity:0.55;
+    pointer-events:none;
+  }
+  .badge{
+    font-size:11px;
+    font-weight:600;
+    padding:3px 8px;
+    border-radius:999px;
+    background:var(--accent-bg);
+    color:var(--accent-dark);
+    margin-left:8px;
+  }
+  .footnote{
+    margin-top:40px;
+    padding-top:24px;
+    border-top:1px solid var(--border);
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Lộ trình học tập</p>
+    <h1>Học DevOps</h1>
+    <p class="lead">Mỗi bước dưới đây là một tài liệu riêng, học tuần tự từ trên xuống. Bấm vào một bước để mở nội dung chi tiết.</p>
+
+    <div class="steps">
+      <a class="step-card" href="01-linux-devops.html">
+        <span class="step-num">01</span>
+        <span class="step-body">
+          <h3>Linux &amp; DevOps<span class="badge">Sẵn sàng</span></h3>
+          <p>Cẩm nang lệnh Linux đầy đủ cho DevOps: file, tiến trình, systemd, quản lý gói, bash script...</p>
+        </span>
+        <span class="step-arrow">→</span>
+      </a>
+
+      <a class="step-card" href="02-networking-security.html">
+        <span class="step-num">02</span>
+        <span class="step-body">
+          <h3>Mạng &amp; Bảo mật cơ bản<span class="badge">Sẵn sàng</span></h3>
+          <p>TCP/IP, DNS, TLS, firewall, VPN, VPC trên AWS, và nguyên tắc bảo mật cho DevOps.</p>
+        </span>
+        <span class="step-arrow">→</span>
+      </a>
+    </div>
+
+    <p class="footnote">Các bước tiếp theo (Docker, Kubernetes, Terraform, CI/CD, Observability...) sẽ được bổ sung sau.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bước 2 · Mạng &amp; Bảo mật cơ bản</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --ink:#1e2733;
+    --ink-soft:#66707c;
+    --accent:#2f6fed;
+    --accent-dark:#1d4fbe;
+    --accent-bg:#e8f0ff;
+    --border:#dfe4ec;
+    --code-bg:#eef1f8;
+    --code-ink:#1d4fbe;
+    --warn-bg:#fff3e6;
+    --warn-border:#e08a2b;
+    --warn-ink:#8a4b0c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15.5px;
+    line-height:1.65;
+  }
+  code, pre{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+  a{ color:var(--accent); }
+
+  .course-nav{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:20px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:12px 24px;
+  }
+  .course-nav a.home{ color:var(--ink); text-decoration:none; font-weight:600; font-size:14px; }
+  .course-nav .steps{ display:flex; gap:8px; margin-left:auto; }
+  .course-nav .steps a{
+    text-decoration:none; font-size:13px; color:var(--ink-soft);
+    padding:6px 12px; border-radius:6px; border:1px solid transparent;
+  }
+  .course-nav .steps a.active{ background:var(--accent-bg); color:var(--accent-dark); font-weight:600; }
+  .course-nav .steps a:hover:not(.active){ border-color:var(--border); }
+
+  .layout{
+    display:grid;
+    grid-template-columns:240px minmax(0,720px);
+    gap:40px;
+    max-width:1020px;
+    margin:0 auto;
+    padding:32px 24px 100px;
+    justify-content:center;
+  }
+  @media (max-width:860px){
+    .layout{ grid-template-columns:1fr; }
+    nav.toc{ position:static; max-height:none; }
+  }
+
+  nav.toc{ position:sticky; top:64px; align-self:start; max-height:calc(100vh - 88px); overflow-y:auto; }
+  nav.toc .eyebrow{ font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px; }
+  nav.toc ol{ list-style:none; margin:0; padding:0; counter-reset:toc; }
+  nav.toc li{ counter-increment:toc; }
+  nav.toc a{ display:flex; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:13px; padding:5px 8px; border-radius:6px; }
+  nav.toc a:hover{ background:var(--accent-bg); color:var(--accent-dark); }
+  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:11px; flex:none; }
+
+  header.hero{ max-width:720px; margin:0 auto 8px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+  header.hero .eyebrow{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600; }
+  header.hero h1{ font-size:30px; margin:0 0 12px; }
+  header.hero p{ color:var(--ink-soft); max-width:62ch; margin:0 0 8px; }
+
+  section{ max-width:720px; margin:44px auto 0; scroll-margin-top:80px; }
+  section h2{ font-size:21px; margin:0 0 6px; display:flex; align-items:baseline; gap:10px; }
+  section h2 .n{ color:var(--accent); font-size:14px; }
+  section > p.intro{ color:var(--ink-soft); margin:0 0 18px; max-width:65ch; }
+  section h3{ font-size:15px; margin:24px 0 8px; color:var(--accent-dark); }
+
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:8px; margin-bottom:14px; }
+  table.cmd{ width:100%; border-collapse:collapse; background:var(--surface); font-size:13.5px; }
+  table.cmd th{ text-align:left; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.cmd td{ padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.cmd tr:last-child td{ border-bottom:none; }
+  table.cmd td:first-child{ white-space:nowrap; }
+  table.cmd code{ background:var(--code-bg); color:var(--code-ink); padding:2px 5px; border-radius:4px; font-size:13px; }
+
+  pre{ background:var(--code-bg); color:var(--code-ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
+  pre code{ background:none; padding:0; color:inherit; }
+
+  .note{ background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--ink); margin:14px 0; }
+  .warn{ background:var(--warn-bg); border-left:3px solid var(--warn-border); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--warn-ink); margin:14px 0; }
+
+  .osi{ display:flex; flex-direction:column; gap:1px; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin:16px 0; }
+  .osi .layer{ display:grid; grid-template-columns:30px 130px 1fr; gap:12px; padding:10px 14px; background:var(--surface); font-size:13.5px; align-items:center; }
+  .osi .layer:nth-child(even){ background:var(--accent-bg); }
+  .osi .layer .num{ color:var(--accent-dark); font-weight:700; font-variant-numeric:tabular-nums; }
+  .osi .layer .name{ font-weight:600; }
+  .osi .layer .ex{ color:var(--ink-soft); }
+
+  .checklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .checklist li{ display:flex; gap:10px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:14px; }
+  .checklist li::before{ content:"✓"; color:var(--accent); font-weight:700; flex:none; }
+
+  .roadmap .step{ display:grid; grid-template-columns:24px 1fr; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .roadmap .step:last-child{ border-bottom:none; }
+  .roadmap .step .dot{ width:8px;height:8px;border-radius:50%; background:var(--accent); margin-top:7px; justify-self:center; }
+  .roadmap .step h4{ margin:0 0 3px; font-size:14px; }
+  .roadmap .step p{ margin:0; color:var(--ink-soft); font-size:13px; }
+
+  footer{ max-width:720px; margin:56px auto 0; padding-top:20px; border-top:1px solid var(--border); color:var(--ink-soft); font-size:12.5px; }
+</style>
+</head>
+<body>
+
+<div class="course-nav">
+  <a class="home" href="index.html">← Học DevOps</a>
+  <div class="steps">
+    <a href="01-linux-devops.html">Bước 1 · Linux</a>
+    <a class="active" href="02-networking-security.html">Bước 2 · Mạng &amp; Bảo mật</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="toc">
+    <p class="eyebrow">Mục lục</p>
+    <ol>
+      <li><a href="#n1">OSI &amp; TCP/IP</a></li>
+      <li><a href="#n2">IP, Subnet &amp; CIDR</a></li>
+      <li><a href="#n3">DNS</a></li>
+      <li><a href="#n4">TCP, UDP &amp; Port</a></li>
+      <li><a href="#n5">HTTP/HTTPS &amp; TLS</a></li>
+      <li><a href="#n6">Định tuyến &amp; NAT</a></li>
+      <li><a href="#n7">Load Balancing</a></li>
+      <li><a href="#n8">Firewall &amp; Security Group</a></li>
+      <li><a href="#n9">VPN &amp; SSH Tunnel</a></li>
+      <li><a href="#n10">Công cụ chẩn đoán mạng</a></li>
+      <li><a href="#n11">Chứng chỉ số &amp; PKI</a></li>
+      <li><a href="#n12">Networking trên AWS</a></li>
+      <li><a href="#n13">Nguyên tắc bảo mật</a></li>
+      <li><a href="#n14">Rủi ro thường gặp</a></li>
+      <li><a href="#n15">Checklist bảo mật</a></li>
+      <li><a href="#n16">Bước tiếp theo</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Bước 02</p>
+      <h1>Mạng &amp; Bảo mật cơ bản cho DevOps</h1>
+      <p>Kiến thức mạng và bảo mật đủ để tự tin triển khai, debug, và bảo vệ hệ thống production — từ khái niệm nền tảng (OSI, TCP/IP, DNS) đến thực hành trên AWS VPC và checklist bảo mật trước khi lên production.</p>
+    </header>
+
+    <section id="n1">
+      <h2><span class="n">01</span> Mô hình OSI &amp; TCP/IP</h2>
+      <p class="intro">Mọi vấn đề mạng đều có thể quy về "lỗi ở lớp nào". Mô hình TCP/IP (4 lớp, thực tế dùng nhiều hơn OSI 7 lớp) giúp bạn khoanh vùng sự cố nhanh hơn.</p>
+      <div class="osi">
+        <div class="layer"><span class="num">4</span><span class="name">Application</span><span class="ex">HTTP, DNS, SSH, FTP — tầng ứng dụng bạn code hàng ngày</span></div>
+        <div class="layer"><span class="num">3</span><span class="name">Transport</span><span class="ex">TCP, UDP — đảm bảo dữ liệu tới đúng, đúng thứ tự (hoặc không)</span></div>
+        <div class="layer"><span class="num">2</span><span class="name">Internet</span><span class="ex">IP, ICMP, routing — gói tin đi từ mạng này sang mạng khác</span></div>
+        <div class="layer"><span class="num">1</span><span class="name">Network Access</span><span class="ex">Ethernet, WiFi, ARP — truyền tín hiệu vật lý trong cùng mạng LAN</span></div>
+      </div>
+      <div class="note">Mẹo debug: "không mở được web" → kiểm tra từ trên xuống: ứng dụng có chạy không (Application) → cổng có mở không (Transport) → có ping được IP không (Internet) → cáp/wifi có kết nối không (Network Access). Xem công cụ cụ thể ở mục 10.</div>
+    </section>
+
+    <section id="n2">
+      <h2><span class="n">02</span> Địa chỉ IP, Subnet &amp; CIDR</h2>
+      <p class="intro">Hiểu CIDR là bắt buộc để đọc hiểu bất kỳ file Terraform nào định nghĩa VPC/subnet trên AWS.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td>IPv4</td><td>Địa chỉ 32-bit, viết dạng 4 số 0-255 cách nhau bởi dấu chấm.</td><td><code>192.168.1.10</code></td></tr>
+        <tr><td>CIDR notation</td><td>Địa chỉ mạng + số bit dùng cho phần network (<code>/n</code>). Số càng nhỏ, mạng càng lớn.</td><td><code>10.0.0.0/16</code> → 65,536 IP</td></tr>
+        <tr><td>Subnet mask</td><td>Dạng khác của CIDR, biểu diễn bằng 4 octet.</td><td><code>/24</code> = <code>255.255.255.0</code></td></tr>
+        <tr><td>Private IP range</td><td>Dải IP không route được ra Internet, dùng nội bộ (RFC 1918).</td><td><code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code></td></tr>
+        <tr><td>Public IP</td><td>Địa chỉ định danh duy nhất trên Internet.</td><td>IP do ISP hoặc AWS Elastic IP cấp</td></tr>
+        <tr><td>NAT</td><td>Dịch địa chỉ private ↔ public để nhiều máy dùng chung 1 IP public.</td><td>Router nhà bạn, hoặc NAT Gateway trên AWS</td></tr>
+        <tr><td>Broadcast / Network address</td><td>Địa chỉ đầu (network) và cuối (broadcast) của một subnet — không gán cho host.</td><td><code>10.0.1.0/24</code> → network <code>10.0.1.0</code>, broadcast <code>10.0.1.255</code></td></tr>
+      </table></div>
+      <div class="note">Cách nhẩm nhanh: <code>/24</code> = 256 IP (254 dùng được), <code>/16</code> = 65,536 IP, <code>/8</code> = 16.7 triệu IP. Mỗi giảm 1 ở số CIDR = gấp đôi số IP.</div>
+    </section>
+
+    <section id="n3">
+      <h2><span class="n">03</span> DNS (Domain Name System)</h2>
+      <p class="intro">DNS dịch tên miền dễ nhớ thành địa chỉ IP máy chủ thực sự cần để kết nối.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Record</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>A</code></td><td>Trỏ tên miền tới một địa chỉ IPv4.</td><td><code>app.example.com → 3.10.20.5</code></td></tr>
+        <tr><td><code>AAAA</code></td><td>Trỏ tên miền tới một địa chỉ IPv6.</td><td><code>app.example.com → 2600:...</code></td></tr>
+        <tr><td><code>CNAME</code></td><td>Bí danh trỏ sang một tên miền khác.</td><td><code>www.example.com → example.com</code></td></tr>
+        <tr><td><code>MX</code></td><td>Máy chủ nhận email cho domain.</td><td><code>example.com → mail.example.com</code></td></tr>
+        <tr><td><code>TXT</code></td><td>Dữ liệu văn bản tùy ý — xác minh domain, cấu hình SPF/DKIM.</td><td><code>v=spf1 include:_spf.google.com ~all</code></td></tr>
+        <tr><td><code>NS</code></td><td>Name server chịu trách nhiệm cho domain.</td><td><code>ns1.awsdns.com</code></td></tr>
+      </table></div>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>dig</code></td><td>Tra cứu DNS chi tiết, công cụ chuẩn cho debug.</td><td><code>dig +short app.example.com A</code></td></tr>
+        <tr><td><code>dig +trace</code></td><td>Xem toàn bộ đường phân giải từ root đến kết quả cuối.</td><td><code>dig +trace example.com</code></td></tr>
+        <tr><td><code>nslookup</code></td><td>Tra cứu DNS đơn giản, có sẵn trên hầu hết hệ điều hành.</td><td><code>nslookup example.com</code></td></tr>
+        <tr><td><code>host</code></td><td>Tra cứu nhanh, output ngắn gọn.</td><td><code>host example.com</code></td></tr>
+      </table></div>
+      <div class="warn"><strong>Lưu ý cache:</strong> thay đổi DNS không có hiệu lực ngay — phụ thuộc vào TTL (time-to-live) của record và cache ở resolver trung gian. Đổi DNS trước khi cutover production nên hạ TTL xuống thấp (ví dụ 60s) từ trước.</div>
+    </section>
+
+    <section id="n4">
+      <h2><span class="n">04</span> TCP, UDP &amp; Port</h2>
+      <p class="intro">TCP và UDP là hai giao thức tầng transport phổ biến nhất, khác nhau ở việc có đảm bảo độ tin cậy hay không.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>So sánh</th><th>TCP</th><th>UDP</th></tr>
+        <tr><td>Kết nối</td><td>Có bắt tay 3 bước (SYN → SYN-ACK → ACK) trước khi truyền.</td><td>Không bắt tay, gửi thẳng.</td></tr>
+        <tr><td>Độ tin cậy</td><td>Đảm bảo gói tin tới đủ, đúng thứ tự, tự động gửi lại nếu mất.</td><td>Không đảm bảo, có thể mất gói.</td></tr>
+        <tr><td>Tốc độ</td><td>Chậm hơn do overhead kiểm soát.</td><td>Nhanh hơn, overhead thấp.</td></tr>
+        <tr><td>Dùng cho</td><td>HTTP/HTTPS, SSH, database, hầu hết ứng dụng cần chính xác.</td><td>DNS, video call, streaming, game realtime.</td></tr>
+      </table></div>
+      <h3>Các port quan trọng cần nhớ</h3>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Port</th><th>Dịch vụ</th></tr>
+        <tr><td><code>22</code></td><td>SSH</td></tr>
+        <tr><td><code>80</code> / <code>443</code></td><td>HTTP / HTTPS</td></tr>
+        <tr><td><code>53</code></td><td>DNS</td></tr>
+        <tr><td><code>25</code>, <code>587</code></td><td>SMTP (gửi email)</td></tr>
+        <tr><td><code>3306</code></td><td>MySQL/MariaDB</td></tr>
+        <tr><td><code>5432</code></td><td>PostgreSQL</td></tr>
+        <tr><td><code>6379</code></td><td>Redis</td></tr>
+        <tr><td><code>27017</code></td><td>MongoDB</td></tr>
+        <tr><td><code>9200</code></td><td>Elasticsearch</td></tr>
+      </table></div>
+    </section>
+
+    <section id="n5">
+      <h2><span class="n">05</span> HTTP/HTTPS &amp; TLS/SSL</h2>
+      <p class="intro">HTTPS = HTTP chạy trong một kênh đã mã hóa bởi TLS. Hiểu quy trình bắt tay TLS giúp debug lỗi certificate nhanh hơn nhiều.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Bước</th><th>Mô tả</th></tr>
+        <tr><td>1. Client Hello</td><td>Trình duyệt gửi danh sách thuật toán mã hóa hỗ trợ.</td></tr>
+        <tr><td>2. Server Hello + Certificate</td><td>Server chọn thuật toán, gửi chứng chỉ số (certificate) để chứng minh danh tính.</td></tr>
+        <tr><td>3. Xác thực chứng chỉ</td><td>Client kiểm tra certificate có được CA tin cậy ký, còn hạn, đúng tên miền không.</td></tr>
+        <tr><td>4. Trao đổi khóa</td><td>Hai bên thống nhất khóa phiên (session key) để mã hóa đối xứng phần còn lại.</td></tr>
+        <tr><td>5. Truyền dữ liệu</td><td>Toàn bộ dữ liệu HTTP sau đó được mã hóa bằng khóa phiên.</td></tr>
+      </table></div>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>curl -vI</code></td><td>Xem chi tiết handshake và header response.</td><td><code>curl -vI https://example.com</code></td></tr>
+        <tr><td><code>openssl s_client</code></td><td>Kiểm tra chứng chỉ TLS của một server trực tiếp.</td><td><code>openssl s_client -connect example.com:443</code></td></tr>
+        <tr><td><code>openssl x509</code></td><td>Xem chi tiết nội dung một file certificate.</td><td><code>openssl x509 -in cert.pem -noout -text</code></td></tr>
+        <tr><td><code>openssl req</code></td><td>Tạo CSR (Certificate Signing Request) để xin certificate.</td><td><code>openssl req -new -newkey rsa:2048 -nodes -keyout key.pem -out req.csr</code></td></tr>
+      </table></div>
+      <div class="note">HTTP status code nên nhớ: <code>2xx</code> thành công, <code>3xx</code> redirect, <code>4xx</code> lỗi phía client (401 chưa xác thực, 403 không đủ quyền, 404 không tồn tại), <code>5xx</code> lỗi phía server (502 bad gateway, 503 service unavailable, 504 gateway timeout).</div>
+    </section>
+
+    <section id="n6">
+      <h2><span class="n">06</span> Định tuyến, NAT &amp; Gateway</h2>
+      <p class="intro">Cách gói tin tìm đường ra khỏi mạng nội bộ để tới Internet, và ngược lại.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>Routing table</td><td>Bảng quyết định gói tin đi đâu dựa trên địa chỉ đích.</td></tr>
+        <tr><td>Default gateway</td><td>Nơi gói tin được gửi tới khi không có route cụ thể nào khớp — thường là router.</td></tr>
+        <tr><td>NAT (Network Address Translation)</td><td>Dịch địa chỉ private thành public khi ra Internet, và ngược lại khi phản hồi về.</td></tr>
+        <tr><td>Port forwarding</td><td>Ánh xạ một port trên gateway public tới một máy/port cụ thể phía sau NAT.</td></tr>
+      </table></div>
+      <div class="note">Trên AWS: subnet public có route <code>0.0.0.0/0</code> trỏ tới Internet Gateway; subnet private trỏ tới NAT Gateway (một chiều — máy trong subnet private gọi ra ngoài được, nhưng Internet không gọi vào được). Xem chi tiết ở mục 12.</div>
+    </section>
+
+    <section id="n7">
+      <h2><span class="n">07</span> Load Balancing</h2>
+      <p class="intro">Phân phối traffic tới nhiều instance để tăng khả năng chịu tải và độ sẵn sàng.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>L4 Load Balancer</td><td>Cân bằng tải ở tầng transport (TCP/UDP), không đọc nội dung HTTP — nhanh hơn.</td></tr>
+        <tr><td>L7 Load Balancer</td><td>Cân bằng tải ở tầng ứng dụng, đọc được path/header HTTP để định tuyến (ví dụ theo <code>/api</code> vs <code>/static</code>).</td></tr>
+        <tr><td>Round robin</td><td>Phân phối request tuần tự, lần lượt cho từng server.</td></tr>
+        <tr><td>Least connections</td><td>Ưu tiên gửi tới server đang có ít kết nối đang xử lý nhất.</td></tr>
+        <tr><td>Health check</td><td>Load balancer tự động loại bỏ server không phản hồi (unhealthy) khỏi vòng phân phối.</td></tr>
+        <tr><td>Sticky session</td><td>Giữ một client luôn kết nối tới cùng một server (cần khi session lưu ở local).</td></tr>
+      </table></div>
+      <div class="note">Trên AWS: Application Load Balancer (ALB) = L7, Network Load Balancer (NLB) = L4. Terraform module <code>aws_lb</code> trong repo của bạn chính là cấu hình các khái niệm này.</div>
+    </section>
+
+    <section id="n8">
+      <h2><span class="n">08</span> Firewall &amp; Security Group</h2>
+      <p class="intro">Lớp phòng thủ đầu tiên: chỉ cho phép traffic cần thiết đi qua, chặn mọi thứ khác theo mặc định.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Công cụ</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>iptables</code> / <code>nftables</code></td><td>Firewall cấp thấp trên Linux, lọc gói tin theo rule chain.</td><td><code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT</code></td></tr>
+        <tr><td><code>ufw</code></td><td>Firewall đơn giản hóa trên Ubuntu.</td><td><code>ufw allow 443/tcp</code></td></tr>
+        <tr><td><code>firewalld</code></td><td>Firewall trên RHEL/CentOS/Fedora, quản lý theo "zone".</td><td><code>firewall-cmd --add-service=https --permanent</code></td></tr>
+      </table></div>
+      <h3>Security Group vs Network ACL (AWS)</h3>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>So sánh</th><th>Security Group</th><th>Network ACL</th></tr>
+        <tr><td>Phạm vi</td><td>Gắn vào từng instance/ENI.</td><td>Gắn vào cả subnet.</td></tr>
+        <tr><td>Stateful?</td><td>Có — traffic phản hồi tự động được phép.</td><td>Không — phải khai báo rule cho cả 2 chiều.</td></tr>
+        <tr><td>Loại rule</td><td>Chỉ có "Allow".</td><td>Có cả "Allow" và "Deny".</td></tr>
+        <tr><td>Thứ tự đánh giá</td><td>Đánh giá tất cả rule rồi hợp nhất.</td><td>Đánh giá theo số thứ tự, dừng ở rule đầu tiên khớp.</td></tr>
+      </table></div>
+      <div class="note">Nguyên tắc vàng: mặc định deny-all, chỉ mở đúng port/nguồn cần thiết (ví dụ chỉ cho phép SSH từ dải IP văn phòng, không mở <code>0.0.0.0/0</code> cho port 22).</div>
+    </section>
+
+    <section id="n9">
+      <h2><span class="n">09</span> VPN &amp; SSH Tunneling</h2>
+      <p class="intro">Tạo kênh riêng tư, mã hóa để truy cập tài nguyên nội bộ từ xa một cách an toàn.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm / Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td>VPN (site-to-site / client)</td><td>Tạo mạng riêng ảo mã hóa giữa hai điểm hoặc từ máy cá nhân vào VPC.</td><td>AWS Client VPN, WireGuard, OpenVPN</td></tr>
+        <tr><td><code>ssh -L</code> (local forward)</td><td>Truy cập một service nội bộ (ví dụ database private) thông qua máy bastion.</td><td><code>ssh -L 5432:db.internal:5432 user@bastion</code></td></tr>
+        <tr><td><code>ssh -D</code> (dynamic/SOCKS proxy)</td><td>Biến kết nối SSH thành proxy SOCKS để duyệt web qua server đó.</td><td><code>ssh -D 1080 user@bastion</code></td></tr>
+        <tr><td>Bastion host / Jump host</td><td>Máy chủ trung gian duy nhất được public, mọi truy cập vào mạng private đi qua đây.</td><td><code>ssh -J bastion@public-ip deploy@10.0.1.5</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="n10">
+      <h2><span class="n">10</span> Công cụ chẩn đoán mạng</h2>
+      <p class="intro">Khi service "không kết nối được", đây là bộ công cụ để khoanh vùng vấn đề nằm ở đâu trong mô hình OSI (mục 01).</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>ping</code></td><td>Kiểm tra host có phản hồi ICMP không (tầng Internet).</td><td><code>ping -c 4 8.8.8.8</code></td></tr>
+        <tr><td><code>traceroute</code> / <code>mtr</code></td><td>Xem đường đi và độ trễ qua từng hop; <code>mtr</code> kết hợp ping liên tục.</td><td><code>mtr example.com</code></td></tr>
+        <tr><td><code>curl -v</code></td><td>Test HTTP/HTTPS, xem chi tiết request/response và lỗi TLS.</td><td><code>curl -v https://api.example.com/health</code></td></tr>
+        <tr><td><code>nc -zv</code></td><td>Kiểm tra một port cụ thể có mở không (tầng Transport).</td><td><code>nc -zv db.internal 5432</code></td></tr>
+        <tr><td><code>ss -tulpn</code></td><td>Xem port nào đang lắng nghe trên máy local.</td><td><code>ss -tulpn | grep LISTEN</code></td></tr>
+        <tr><td><code>tcpdump</code></td><td>Bắt và phân tích gói tin thô đi qua interface.</td><td><code>tcpdump -i eth0 port 443 -n</code></td></tr>
+        <tr><td><code>nmap</code></td><td>Quét port trên host để biết dịch vụ nào đang mở — chỉ dùng trên hệ thống bạn được phép quét.</td><td><code>nmap -p 1-1000 10.0.1.5</code></td></tr>
+        <tr><td><code>dig</code></td><td>Xác minh DNS trả về đúng IP mong đợi (xem mục 03).</td><td><code>dig +short api.example.com</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="n11">
+      <h2><span class="n">11</span> Chứng chỉ số &amp; PKI</h2>
+      <p class="intro">PKI (Public Key Infrastructure) là hệ thống giúp bên lạ tin tưởng danh tính của một server thông qua chữ ký số.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>Public/Private key</td><td>Cặp khóa bất đối xứng — mã hóa bằng public key chỉ giải mã được bằng private key tương ứng.</td></tr>
+        <tr><td>Certificate Authority (CA)</td><td>Tổ chức được tin cậy, ký xác nhận certificate thuộc đúng chủ sở hữu domain.</td></tr>
+        <tr><td>Self-signed certificate</td><td>Certificate tự ký, không CA nào công nhận — chỉ dùng nội bộ/dev, trình duyệt sẽ cảnh báo.</td></tr>
+        <tr><td>Let's Encrypt / ACM</td><td>Dịch vụ cấp certificate miễn phí, tự động gia hạn (ACM tích hợp sẵn trong AWS).</td></tr>
+        <tr><td>Certificate chain</td><td>Chuỗi tin cậy từ certificate của server → intermediate CA → root CA.</td></tr>
+      </table></div>
+      <div class="warn">Certificate hết hạn là một trong những nguyên nhân outage phổ biến nhất — nên có cảnh báo tự động trước ngày hết hạn ít nhất 30 ngày.</div>
+    </section>
+
+    <section id="n12">
+      <h2><span class="n">12</span> Networking trên AWS (VPC)</h2>
+      <p class="intro">Áp dụng toàn bộ khái niệm ở trên vào hạ tầng AWS — trực tiếp liên quan tới các module trong repo Terraform bạn đang có.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Thành phần</th><th>Mô tả</th></tr>
+        <tr><td>VPC</td><td>Mạng ảo riêng biệt trong AWS, định nghĩa bằng một dải CIDR (ví dụ <code>10.0.0.0/16</code>).</td></tr>
+        <tr><td>Subnet</td><td>Chia nhỏ VPC theo Availability Zone; đánh dấu public (có route ra Internet Gateway) hoặc private.</td></tr>
+        <tr><td>Internet Gateway (IGW)</td><td>Cổng cho phép subnet public giao tiếp hai chiều với Internet.</td></tr>
+        <tr><td>NAT Gateway</td><td>Cho phép subnet private gọi ra Internet (ví dụ tải update) mà không nhận kết nối từ ngoài vào.</td></tr>
+        <tr><td>Route Table</td><td>Quy tắc định tuyến gắn vào từng subnet, quyết định traffic đi đâu.</td></tr>
+        <tr><td>Security Group</td><td>Firewall stateful ở cấp instance (xem mục 08).</td></tr>
+        <tr><td>Network ACL</td><td>Firewall stateless ở cấp subnet (xem mục 08).</td></tr>
+        <tr><td>VPC Peering / Transit Gateway</td><td>Kết nối nhiều VPC với nhau, trong cùng hoặc khác tài khoản AWS.</td></tr>
+      </table></div>
+      <div class="note">Kiến trúc phổ biến: Load Balancer đặt ở subnet public, application/database đặt ở subnet private — chỉ Load Balancer nhận traffic trực tiếp từ Internet, phần còn lại được cách ly.</div>
+    </section>
+
+    <section id="n13">
+      <h2><span class="n">13</span> Nguyên tắc bảo mật cho DevOps</h2>
+      <p class="intro">Bảo mật không phải một tính năng thêm vào cuối — là nguyên tắc thiết kế xuyên suốt hạ tầng.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Nguyên tắc</th><th>Ý nghĩa thực hành</th></tr>
+        <tr><td>Least privilege</td><td>Mỗi user/service chỉ được cấp đúng quyền cần thiết, không hơn — dùng IAM Role cho service thay vì access key cố định.</td></tr>
+        <tr><td>Defense in depth</td><td>Nhiều lớp bảo vệ chồng lên nhau (firewall + security group + application auth) — một lớp bị vượt qua vẫn còn lớp khác.</td></tr>
+        <tr><td>Encryption in transit</td><td>Mã hóa dữ liệu khi truyền đi — luôn dùng HTTPS/TLS, không dùng HTTP thuần cho dữ liệu nhạy cảm.</td></tr>
+        <tr><td>Encryption at rest</td><td>Mã hóa dữ liệu khi lưu trữ — bật encryption cho EBS volume, S3 bucket, RDS database.</td></tr>
+        <tr><td>Secrets management</td><td>Không bao giờ hard-code mật khẩu/API key trong code hoặc commit lên Git — dùng AWS Secrets Manager, SSM Parameter Store, hoặc Vault.</td></tr>
+        <tr><td>Patch management</td><td>Cập nhật bản vá bảo mật hệ điều hành và dependency định kỳ, không để lộ lỗ hổng đã biết.</td></tr>
+        <tr><td>Audit logging</td><td>Ghi lại ai đã làm gì, khi nào — AWS CloudTrail, journalctl, application log tập trung.</td></tr>
+        <tr><td>MFA (Multi-Factor Authentication)</td><td>Bắt buộc xác thực 2 lớp cho mọi tài khoản có quyền quản trị.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="n14">
+      <h2><span class="n">14</span> Rủi ro bảo mật thường gặp &amp; cách phòng chống</h2>
+      <p class="intro">Nhận diện rủi ro để biết ưu tiên phòng thủ ở đâu — không đi sâu kỹ thuật tấn công, chỉ tập trung góc nhìn phòng thủ.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Rủi ro</th><th>Mô tả ngắn</th><th>Cách phòng chống chính</th></tr>
+        <tr><td>Brute force</td><td>Dò mật khẩu/key bằng cách thử liên tục.</td><td>Giới hạn số lần thử (rate limiting), MFA, dùng SSH key thay vì mật khẩu, <code>fail2ban</code>.</td></tr>
+        <tr><td>DDoS</td><td>Làm quá tải hệ thống bằng lượng traffic khổng lồ.</td><td>CDN/WAF (CloudFront + AWS Shield), auto-scaling, rate limiting ở load balancer.</td></tr>
+        <tr><td>Man-in-the-middle (MITM)</td><td>Kẻ tấn công chen vào giữa để nghe lén/sửa dữ liệu truyền đi.</td><td>Luôn dùng TLS, xác thực certificate, không tắt cảnh báo certificate không hợp lệ.</td></tr>
+        <tr><td>SQL Injection</td><td>Chèn câu lệnh SQL độc hại qua input không được kiểm soát.</td><td>Dùng prepared statement/ORM, không nối chuỗi SQL trực tiếp từ input.</td></tr>
+        <tr><td>Lộ secrets</td><td>Commit nhầm API key, mật khẩu lên Git hoặc log.</td><td>Secrets manager, <code>.gitignore</code>, quét secret tự động trong CI (ví dụ git-secrets, trufflehog).</td></tr>
+        <tr><td>Misconfiguration</td><td>Mở port/quyền quá rộng do cấu hình sai (S3 bucket public, security group <code>0.0.0.0/0</code>).</td><td>Review Terraform plan trước khi apply, dùng công cụ quét IaC (tfsec, checkov).</td></tr>
+      </table></div>
+    </section>
+
+    <section id="n15">
+      <h2><span class="n">15</span> Checklist bảo mật trước khi lên production</h2>
+      <ul class="checklist">
+        <li>Không có security group nào mở port quản trị (22, 3389) cho <code>0.0.0.0/0</code>.</li>
+        <li>Toàn bộ traffic public chạy qua HTTPS, chứng chỉ còn hạn và tự động gia hạn.</li>
+        <li>Database và service nội bộ nằm trong subnet private, không có IP public.</li>
+        <li>Secrets (API key, mật khẩu DB) nằm trong Secrets Manager/SSM, không trong code hay biến môi trường plaintext committed.</li>
+        <li>IAM dùng Role theo least-privilege, không dùng access key lâu dài cho service chạy trên EC2/ECS.</li>
+        <li>MFA bật cho toàn bộ tài khoản có quyền admin.</li>
+        <li>Logging và audit trail (CloudTrail, application log) được bật và lưu tập trung.</li>
+        <li>Backup dữ liệu được test khôi phục định kỳ, không chỉ tạo backup rồi bỏ đó.</li>
+        <li>Có cảnh báo tự động khi certificate hoặc credential sắp hết hạn.</li>
+      </ul>
+    </section>
+
+    <section id="n16">
+      <h2><span class="n">16</span> Bước tiếp theo</h2>
+      <p class="intro">Sau Mạng &amp; Bảo mật, các bước tiếp theo trong lộ trình DevOps thường là:</p>
+      <div class="roadmap">
+        <div class="step"><span class="dot"></span><div><h4>Docker</h4><p>Đóng gói ứng dụng thành container, hiểu networking giữa các container.</p></div></div>
+        <div class="step"><span class="dot"></span><div><h4>Kubernetes</h4><p>Điều phối container ở quy mô lớn, Network Policy áp dụng đúng kiến thức firewall ở mục 08.</p></div></div>
+        <div class="step"><span class="dot"></span><div><h4>Terraform (Infrastructure as Code)</h4><p>Định nghĩa VPC, Security Group, Load Balancer ở mục 07-08-12 bằng code — bạn đã có sẵn repo để thực hành.</p></div></div>
+        <div class="step"><span class="dot"></span><div><h4>CI/CD &amp; Observability</h4><p>Tự động hóa deploy và giám sát hệ thống production.</p></div></div>
+      </div>
+      <div class="note">Các bước này sẽ được bổ sung dần vào mục lục ở <a href="index.html">trang chủ</a>.</div>
+    </section>
+
+    <footer>
+      Tài liệu này tập trung vào kiến thức nền tảng đủ để vận hành hạ tầng an toàn — không thay thế cho đào tạo bảo mật chuyên sâu (penetration testing, compliance) khi hệ thống có yêu cầu cao hơn.
+    </footer>
+  </main>
+</div>
+</body>
+</html>

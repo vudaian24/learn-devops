@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bước 1 · Linux &amp; DevOps</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --ink:#1e2733;
+    --ink-soft:#66707c;
+    --accent:#2f6fed;
+    --accent-dark:#1d4fbe;
+    --accent-bg:#e8f0ff;
+    --border:#dfe4ec;
+    --code-bg:#eef1f8;
+    --code-ink:#1d4fbe;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15.5px;
+    line-height:1.65;
+  }
+  code, pre{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+  a{ color:var(--accent); }
+
+  .course-nav{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:20px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:12px 24px;
+  }
+  .course-nav a.home{ color:var(--ink); text-decoration:none; font-weight:600; font-size:14px; }
+  .course-nav .steps{ display:flex; gap:8px; margin-left:auto; }
+  .course-nav .steps a{
+    text-decoration:none; font-size:13px; color:var(--ink-soft);
+    padding:6px 12px; border-radius:6px; border:1px solid transparent;
+  }
+  .course-nav .steps a.active{ background:var(--accent-bg); color:var(--accent-dark); font-weight:600; }
+  .course-nav .steps a:hover:not(.active){ border-color:var(--border); }
+
+  .layout{
+    display:grid;
+    grid-template-columns:240px minmax(0,720px);
+    gap:40px;
+    max-width:1020px;
+    margin:0 auto;
+    padding:32px 24px 100px;
+    justify-content:center;
+  }
+  @media (max-width:860px){
+    .layout{ grid-template-columns:1fr; }
+    nav.toc{ position:static; max-height:none; }
+  }
+
+  nav.toc{ position:sticky; top:64px; align-self:start; max-height:calc(100vh - 88px); overflow-y:auto; }
+  nav.toc .eyebrow{ font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px; }
+  nav.toc ol{ list-style:none; margin:0; padding:0; counter-reset:toc; }
+  nav.toc li{ counter-increment:toc; }
+  nav.toc a{ display:flex; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:13px; padding:5px 8px; border-radius:6px; }
+  nav.toc a:hover{ background:var(--accent-bg); color:var(--accent-dark); }
+  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:11px; flex:none; }
+
+  header.hero{ max-width:720px; margin:0 auto 8px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+  header.hero .eyebrow{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600; }
+  header.hero h1{ font-size:30px; margin:0 0 12px; }
+  header.hero p{ color:var(--ink-soft); max-width:62ch; margin:0 0 8px; }
+
+  section{ max-width:720px; margin:44px auto 0; scroll-margin-top:80px; }
+  section h2{ font-size:21px; margin:0 0 6px; display:flex; align-items:baseline; gap:10px; }
+  section h2 .n{ color:var(--accent); font-size:14px; }
+  section > p.intro{ color:var(--ink-soft); margin:0 0 18px; max-width:65ch; }
+  section h3{ font-size:15px; margin:24px 0 8px; color:var(--accent-dark); }
+
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:8px; }
+  table.cmd{ width:100%; border-collapse:collapse; background:var(--surface); font-size:13.5px; }
+  table.cmd th{ text-align:left; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.cmd td{ padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.cmd tr:last-child td{ border-bottom:none; }
+  table.cmd td:first-child{ white-space:nowrap; }
+  table.cmd code{ background:var(--code-bg); color:var(--code-ink); padding:2px 5px; border-radius:4px; font-size:13px; }
+
+  pre{ background:var(--code-bg); color:var(--code-ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
+  pre code{ background:none; padding:0; color:inherit; }
+
+  .note{ background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--ink); margin:14px 0; }
+
+  .roadmap .step{ display:grid; grid-template-columns:24px 1fr; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .roadmap .step:last-child{ border-bottom:none; }
+  .roadmap .step .dot{ width:8px;height:8px;border-radius:50%; background:var(--accent); margin-top:7px; justify-self:center; }
+  .roadmap .step h4{ margin:0 0 3px; font-size:14px; }
+  .roadmap .step p{ margin:0; color:var(--ink-soft); font-size:13px; }
+
+  footer{ max-width:720px; margin:56px auto 0; padding-top:20px; border-top:1px solid var(--border); color:var(--ink-soft); font-size:12.5px; }
+</style>
+</head>
+<body>
+
+<div class="course-nav">
+  <a class="home" href="index.html">← Học DevOps</a>
+  <div class="steps">
+    <a class="active" href="01-linux-devops.html">Bước 1 · Linux</a>
+    <a href="02-networking-security.html">Bước 2 · Mạng &amp; Bảo mật</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="toc">
+    <p class="eyebrow">Mục lục</p>
+    <ol>
+      <li><a href="#s1">Terminal &amp; Shell</a></li>
+      <li><a href="#s2">File &amp; thư mục</a></li>
+      <li><a href="#s3">Xử lý văn bản</a></li>
+      <li><a href="#s4">Phân quyền</a></li>
+      <li><a href="#s5">Tiến trình</a></li>
+      <li><a href="#s6">systemd</a></li>
+      <li><a href="#s7">User &amp; Group</a></li>
+      <li><a href="#s8">Mạng</a></li>
+      <li><a href="#s9">Quản lý gói</a></li>
+      <li><a href="#s10">Ổ đĩa &amp; lưu trữ</a></li>
+      <li><a href="#s11">Nén &amp; archive</a></li>
+      <li><a href="#s12">Giám sát &amp; log</a></li>
+      <li><a href="#s13">Lập lịch (cron)</a></li>
+      <li><a href="#s14">Biến môi trường</a></li>
+      <li><a href="#s15">Bash script</a></li>
+      <li><a href="#s16">SSH &amp; bảo mật</a></li>
+      <li><a href="#s17">Namespaces &amp; container</a></li>
+      <li><a href="#s18">Công cụ hay dùng</a></li>
+      <li><a href="#s19">Bước tiếp theo</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Bước 01</p>
+      <h1>Linux cho DevOps: cẩm nang lệnh đầy đủ</h1>
+      <p>19 nhóm lệnh Linux mà một kỹ sư DevOps dùng hàng ngày — từ điều hướng file cơ bản đến systemd, mạng, và nền tảng container. Mỗi mục có mô tả ngắn và ví dụ chạy được thật.</p>
+    </header>
+
+    <section id="s1">
+      <h2><span class="n">01</span> Terminal &amp; Shell</h2>
+      <p class="intro">Shell là chương trình thông dịch lệnh bạn gõ. Mặc định trên hầu hết distro là <code>bash</code>; các distro hiện đại (Ubuntu, Fedora) đôi khi dùng <code>zsh</code>. Biết cách tự tra cứu (<code>man</code>, <code>--help</code>) quan trọng hơn thuộc lòng mọi lệnh.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>man</code></td><td>Xem trang hướng dẫn đầy đủ của một lệnh.</td><td><code>man chmod</code></td></tr>
+        <tr><td><code>--help</code></td><td>Xem tóm tắt cờ (flag) của lệnh, nhanh hơn man.</td><td><code>tar --help</code></td></tr>
+        <tr><td><code>whatis</code></td><td>Mô tả 1 dòng về lệnh.</td><td><code>whatis grep</code></td></tr>
+        <tr><td><code>type</code></td><td>Xem lệnh là alias, builtin, hay file thực thi.</td><td><code>type ls</code></td></tr>
+        <tr><td><code>which</code></td><td>Đường dẫn tuyệt đối của một binary trong <code>$PATH</code>.</td><td><code>which python3</code></td></tr>
+        <tr><td><code>history</code></td><td>Xem lịch sử lệnh đã gõ.</td><td><code>history | grep ssh</code></td></tr>
+        <tr><td><code>clear</code></td><td>Xóa màn hình terminal.</td><td><code>clear</code></td></tr>
+        <tr><td><code>whoami</code></td><td>Người dùng hiện tại.</td><td><code>whoami</code></td></tr>
+        <tr><td><code>uname -a</code></td><td>Thông tin kernel, kiến trúc, hostname.</td><td><code>uname -a</code></td></tr>
+        <tr><td><code>hostnamectl</code></td><td>Thông tin hệ thống chi tiết (systemd).</td><td><code>hostnamectl</code></td></tr>
+        <tr><td><code>/etc/os-release</code></td><td>Xem tên và version distro đang chạy.</td><td><code>cat /etc/os-release</code></td></tr>
+      </table></div>
+      <div class="note"><strong>Ghi chú distro:</strong> lệnh cốt lõi (ls, grep, chmod…) giống nhau ở mọi bản phân phối. Khác biệt chính nằm ở trình quản lý gói: Debian/Ubuntu dùng <code>apt</code>, RHEL/CentOS/Fedora dùng <code>dnf</code>/<code>yum</code> — xem mục 09.</div>
+    </section>
+
+    <section id="s2">
+      <h2><span class="n">02</span> File &amp; thư mục</h2>
+      <p class="intro">Nền tảng của mọi thao tác trên Linux. <code>find</code> đặc biệt quan trọng để dọn log, tìm file cấu hình, hay chạy hàng loạt qua <code>xargs</code>.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>pwd</code></td><td>In đường dẫn thư mục hiện tại.</td><td><code>pwd</code></td></tr>
+        <tr><td><code>cd</code></td><td>Đổi thư mục làm việc.</td><td><code>cd /var/log && cd -</code></td></tr>
+        <tr><td><code>ls -la</code></td><td>Liệt kê file kèm ẩn, quyền, chủ sở hữu.</td><td><code>ls -lah /etc</code></td></tr>
+        <tr><td><code>tree</code></td><td>Xem cây thư mục dạng phân cấp.</td><td><code>tree -L 2</code></td></tr>
+        <tr><td><code>mkdir -p</code></td><td>Tạo thư mục, kể cả thư mục cha chưa tồn tại.</td><td><code>mkdir -p app/logs/2026</code></td></tr>
+        <tr><td><code>touch</code></td><td>Tạo file rỗng hoặc cập nhật timestamp.</td><td><code>touch deploy.log</code></td></tr>
+        <tr><td><code>cp -r</code></td><td>Sao chép file/thư mục (đệ quy với -r).</td><td><code>cp -r configs/ backup/</code></td></tr>
+        <tr><td><code>mv</code></td><td>Di chuyển hoặc đổi tên.</td><td><code>mv app.log app.log.bak</code></td></tr>
+        <tr><td><code>rm -rf</code></td><td>Xóa file/thư mục đệ quy, không hỏi lại. Dùng cẩn thận.</td><td><code>rm -rf ./tmp_build</code></td></tr>
+        <tr><td><code>find</code></td><td>Tìm file theo tên, thời gian, kích thước, quyền…</td><td><code>find /var/log -name "*.log" -mtime +7</code></td></tr>
+        <tr><td><code>find … -exec</code></td><td>Chạy lệnh trên từng kết quả tìm được.</td><td><code>find . -name "*.tmp" -exec rm {} \;</code></td></tr>
+        <tr><td><code>locate</code></td><td>Tìm file nhanh qua database (cần <code>updatedb</code>).</td><td><code>locate nginx.conf</code></td></tr>
+        <tr><td><code>ln -s</code></td><td>Tạo symbolic link.</td><td><code>ln -s /opt/app/current /opt/app/live</code></td></tr>
+        <tr><td><code>stat</code></td><td>Thông tin chi tiết inode: quyền, thời gian, kích thước.</td><td><code>stat Dockerfile</code></td></tr>
+        <tr><td><code>file</code></td><td>Xác định loại file thực tế (không dựa vào phần mở rộng).</td><td><code>file ./binary</code></td></tr>
+        <tr><td><code>basename</code> / <code>dirname</code></td><td>Tách tên file / thư mục cha từ một đường dẫn.</td><td><code>basename /opt/app/run.sh</code></td></tr>
+        <tr><td><code>realpath</code></td><td>Đường dẫn tuyệt đối, đã resolve symlink.</td><td><code>realpath ../shared/config.yml</code></td></tr>
+        <tr><td><code>du -sh</code></td><td>Tổng dung lượng một thư mục.</td><td><code>du -sh /var/lib/docker</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s3">
+      <h2><span class="n">03</span> Xử lý văn bản (text processing)</h2>
+      <p class="intro">DevOps sống trong log và file cấu hình dạng text. Bộ ba <code>grep</code> + <code>sed</code> + <code>awk</code> là công cụ mạnh nhất bạn có.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>cat</code></td><td>In toàn bộ nội dung file ra màn hình.</td><td><code>cat /etc/hosts</code></td></tr>
+        <tr><td><code>less</code></td><td>Xem file dài, cuộn trang, tìm kiếm bằng <code>/</code>.</td><td><code>less /var/log/syslog</code></td></tr>
+        <tr><td><code>head</code> / <code>tail</code></td><td>Xem đầu/cuối file. <code>-f</code> để theo dõi realtime.</td><td><code>tail -f /var/log/nginx/access.log</code></td></tr>
+        <tr><td><code>wc</code></td><td>Đếm dòng (-l), từ (-w), byte (-c).</td><td><code>wc -l access.log</code></td></tr>
+        <tr><td><code>grep</code></td><td>Tìm dòng khớp pattern. -i, -r, -n, -v, -E.</td><td><code>grep -rniE "error|fail" /var/log/app/</code></td></tr>
+        <tr><td><code>sed</code></td><td>Tìm-thay thế văn bản theo dòng, hoặc xóa/chèn dòng.</td><td><code>sed -i 's/DEBUG/INFO/g' config.env</code></td></tr>
+        <tr><td><code>awk</code></td><td>Xử lý dữ liệu dạng cột, tính toán, lọc theo điều kiện.</td><td><code>awk '{print $1, $NF}' access.log</code></td></tr>
+        <tr><td><code>cut</code></td><td>Cắt cột theo delimiter hoặc vị trí ký tự.</td><td><code>cut -d: -f1 /etc/passwd</code></td></tr>
+        <tr><td><code>sort</code></td><td>Sắp xếp dòng (-n số, -r ngược, -u duy nhất).</td><td><code>sort -nr scores.txt</code></td></tr>
+        <tr><td><code>uniq</code></td><td>Loại dòng trùng liền kề, thường đi sau <code>sort</code>.</td><td><code>sort ips.txt | uniq -c | sort -nr</code></td></tr>
+        <tr><td><code>tr</code></td><td>Thay thế/xóa ký tự.</td><td><code>echo "HELLO" | tr 'A-Z' 'a-z'</code></td></tr>
+        <tr><td><code>diff</code></td><td>So sánh khác biệt giữa hai file.</td><td><code>diff config.old config.new</code></td></tr>
+        <tr><td><code>tee</code></td><td>Ghi ra file đồng thời in ra màn hình (dùng trong pipe).</td><td><code>echo "OK" | tee -a status.log</code></td></tr>
+        <tr><td><code>column -t</code></td><td>Căn dữ liệu thành bảng dễ đọc.</td><td><code>cat data.csv | column -t -s,</code></td></tr>
+      </table></div>
+      <div class="note">Pipe (<code>|</code>) nối các lệnh này lại: <code>cat access.log | grep 500 | awk '{print $1}' | sort | uniq -c | sort -nr | head</code> — đếm IP gây lỗi 500 nhiều nhất.</div>
+    </section>
+
+    <section id="s4">
+      <h2><span class="n">04</span> Phân quyền (permissions)</h2>
+      <p class="intro">Mỗi file có 3 nhóm quyền: chủ sở hữu (owner), nhóm (group), người khác (other), mỗi nhóm có read/write/execute.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>chmod</code></td><td>Đổi quyền, dạng số (755) hoặc ký hiệu (u+x).</td><td><code>chmod 750 deploy.sh</code></td></tr>
+        <tr><td><code>chown</code></td><td>Đổi chủ sở hữu file/thư mục.</td><td><code>chown -R app:app /opt/app</code></td></tr>
+        <tr><td><code>chgrp</code></td><td>Đổi nhóm sở hữu.</td><td><code>chgrp deploy release.tar</code></td></tr>
+        <tr><td><code>umask</code></td><td>Quyền mặc định khi tạo file mới.</td><td><code>umask 022</code></td></tr>
+        <tr><td><code>getfacl</code> / <code>setfacl</code></td><td>Quyền chi tiết hơn owner/group/other (ACL).</td><td><code>setfacl -m u:web:rx /srv/data</code></td></tr>
+        <tr><td><code>sudo</code></td><td>Chạy lệnh với quyền user khác (thường là root).</td><td><code>sudo systemctl restart nginx</code></td></tr>
+        <tr><td><code>su</code></td><td>Chuyển sang user khác trong shell hiện tại.</td><td><code>su - postgres</code></td></tr>
+        <tr><td><code>visudo</code></td><td>Sửa <code>/etc/sudoers</code> an toàn.</td><td><code>sudo visudo</code></td></tr>
+      </table></div>
+      <div class="note">Số quyền = tổng r(4)+w(2)+x(1). <code>755</code> = owner rwx, group r-x, other r-x. <code>644</code> = chuẩn cho file cấu hình chỉ đọc.</div>
+    </section>
+
+    <section id="s5">
+      <h2><span class="n">05</span> Quản lý tiến trình</h2>
+      <p class="intro">Xem, theo dõi, và kiểm soát tiến trình đang chạy — cần thiết khi debug ứng dụng treo hoặc ngốn tài nguyên.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>ps aux</code></td><td>Danh sách toàn bộ tiến trình đang chạy.</td><td><code>ps aux | grep nginx</code></td></tr>
+        <tr><td><code>ps -ef --forest</code></td><td>Xem quan hệ cha-con của tiến trình.</td><td><code>ps -ef --forest</code></td></tr>
+        <tr><td><code>top</code> / <code>htop</code></td><td>Theo dõi CPU/RAM realtime theo tiến trình.</td><td><code>htop</code></td></tr>
+        <tr><td><code>kill</code></td><td>Gửi tín hiệu tới tiến trình theo PID.</td><td><code>kill -9 1234</code></td></tr>
+        <tr><td><code>killall</code> / <code>pkill</code></td><td>Kill tiến trình theo tên thay vì PID.</td><td><code>pkill -f "node server.js"</code></td></tr>
+        <tr><td><code>pgrep</code></td><td>Tìm PID theo tên tiến trình.</td><td><code>pgrep -a python</code></td></tr>
+        <tr><td><code>nice</code> / <code>renice</code></td><td>Đặt độ ưu tiên CPU (-20 cao nhất, 19 thấp nhất).</td><td><code>renice -n 10 -p 1234</code></td></tr>
+        <tr><td><code>nohup … &amp;</code></td><td>Chạy nền, không bị kill khi đóng terminal.</td><td><code>nohup ./worker.sh &gt; worker.log 2&gt;&amp;1 &amp;</code></td></tr>
+        <tr><td><code>jobs</code> / <code>fg</code> / <code>bg</code></td><td>Quản lý tiến trình nền của shell hiện tại.</td><td><code>jobs -l</code></td></tr>
+        <tr><td><code>disown</code></td><td>Tách job khỏi shell để không bị kill khi logout.</td><td><code>disown -h %1</code></td></tr>
+        <tr><td><code>lsof</code></td><td>Xem file/port đang được tiến trình nào mở.</td><td><code>lsof -i :8080</code></td></tr>
+        <tr><td><code>free -h</code></td><td>Bộ nhớ RAM/swap đang dùng.</td><td><code>free -h</code></td></tr>
+        <tr><td><code>uptime</code></td><td>Thời gian chạy máy và load average.</td><td><code>uptime</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s6">
+      <h2><span class="n">06</span> Quản lý dịch vụ với systemd</h2>
+      <p class="intro">Hầu hết distro hiện đại dùng <code>systemd</code> làm init system (PID 1) — quản lý service, log tập trung qua journal, và lịch chạy qua timer.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>systemctl start/stop/restart</code></td><td>Điều khiển vòng đời service.</td><td><code>systemctl restart docker</code></td></tr>
+        <tr><td><code>systemctl reload</code></td><td>Nạp lại cấu hình mà không ngắt kết nối.</td><td><code>systemctl reload nginx</code></td></tr>
+        <tr><td><code>systemctl status</code></td><td>Trạng thái, PID, log gần nhất của service.</td><td><code>systemctl status sshd</code></td></tr>
+        <tr><td><code>systemctl enable/disable</code></td><td>Bật/tắt tự khởi động cùng hệ thống.</td><td><code>systemctl enable --now docker</code></td></tr>
+        <tr><td><code>systemctl is-active</code> / <code>is-enabled</code></td><td>Kiểm tra nhanh trạng thái, dùng tốt trong script.</td><td><code>systemctl is-active nginx</code></td></tr>
+        <tr><td><code>systemctl list-units --type=service</code></td><td>Danh sách toàn bộ service đang được biết đến.</td><td><code>systemctl list-units --state=running</code></td></tr>
+        <tr><td><code>systemctl daemon-reload</code></td><td>Nạp lại sau khi sửa unit file.</td><td><code>sudo systemctl daemon-reload</code></td></tr>
+        <tr><td><code>journalctl -u</code></td><td>Log của một service cụ thể.</td><td><code>journalctl -u nginx -f</code></td></tr>
+        <tr><td><code>journalctl -b</code></td><td>Log từ lần boot hiện tại.</td><td><code>journalctl -b -p err</code></td></tr>
+        <tr><td><code>journalctl --since</code></td><td>Lọc log theo khoảng thời gian.</td><td><code>journalctl --since "1 hour ago"</code></td></tr>
+        <tr><td><code>systemd-analyze</code></td><td>Thời gian boot, service nào khởi động chậm.</td><td><code>systemd-analyze blame</code></td></tr>
+      </table></div>
+      <div class="note">Unit file cơ bản (<code>/etc/systemd/system/myapp.service</code>):
+        <pre><code>[Unit]
+Description=My App
+After=network.target
+
+[Service]
+ExecStart=/opt/app/run.sh
+Restart=on-failure
+User=app
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+      </div>
+    </section>
+
+    <section id="s7">
+      <h2><span class="n">07</span> Người dùng &amp; nhóm</h2>
+      <p class="intro">Quản lý ai được đăng nhập, thuộc nhóm nào, quyền sudo — nền tảng bảo mật của server.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>useradd</code> / <code>adduser</code></td><td>Tạo user mới.</td><td><code>useradd -m -s /bin/bash deploy</code></td></tr>
+        <tr><td><code>usermod</code></td><td>Sửa thông tin user, thêm vào nhóm.</td><td><code>usermod -aG docker deploy</code></td></tr>
+        <tr><td><code>userdel</code></td><td>Xóa user (-r xóa luôn home directory).</td><td><code>userdel -r olduser</code></td></tr>
+        <tr><td><code>passwd</code></td><td>Đặt/đổi mật khẩu.</td><td><code>passwd deploy</code></td></tr>
+        <tr><td><code>groupadd</code> / <code>groupdel</code></td><td>Tạo/xóa nhóm.</td><td><code>groupadd deploy-team</code></td></tr>
+        <tr><td><code>groups</code></td><td>Xem user thuộc những nhóm nào.</td><td><code>groups deploy</code></td></tr>
+        <tr><td><code>id</code></td><td>UID, GID, và các nhóm phụ của user.</td><td><code>id deploy</code></td></tr>
+        <tr><td><code>chage</code></td><td>Chính sách hết hạn mật khẩu.</td><td><code>chage -l deploy</code></td></tr>
+        <tr><td><code>w</code> / <code>who</code></td><td>Ai đang đăng nhập, từ đâu.</td><td><code>w</code></td></tr>
+        <tr><td><code>last</code></td><td>Lịch sử đăng nhập gần đây.</td><td><code>last -n 20</code></td></tr>
+      </table></div>
+      <div class="note">3 file quan trọng: <code>/etc/passwd</code> (danh sách user), <code>/etc/shadow</code> (mật khẩu đã mã hóa), <code>/etc/group</code> (danh sách nhóm).</div>
+    </section>
+
+    <section id="s8">
+      <h2><span class="n">08</span> Mạng (networking)</h2>
+      <p class="intro">Kiểm tra kết nối, cấu hình interface, debug port, và truyền file qua mạng. Xem sâu hơn ở <a href="02-networking-security.html">Bước 2 — Mạng &amp; Bảo mật</a>.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>ip a</code></td><td>Xem IP, interface mạng.</td><td><code>ip a</code></td></tr>
+        <tr><td><code>ip route</code></td><td>Bảng định tuyến, default gateway.</td><td><code>ip route</code></td></tr>
+        <tr><td><code>ping</code></td><td>Kiểm tra kết nối tới host.</td><td><code>ping -c 4 8.8.8.8</code></td></tr>
+        <tr><td><code>curl</code></td><td>Gọi HTTP(S)/API, tải file, test endpoint.</td><td><code>curl -sSI https://example.com</code></td></tr>
+        <tr><td><code>ssh</code></td><td>Đăng nhập từ xa qua SSH.</td><td><code>ssh -i key.pem ubuntu@10.0.0.5</code></td></tr>
+        <tr><td><code>scp</code> / <code>rsync -avz</code></td><td>Copy/đồng bộ file qua SSH.</td><td><code>rsync -avz ./dist/ user@host:/var/www/</code></td></tr>
+        <tr><td><code>ss -tulpn</code></td><td>Danh sách port đang lắng nghe và tiến trình sở hữu.</td><td><code>ss -tulpn | grep :443</code></td></tr>
+        <tr><td><code>dig</code> / <code>nslookup</code></td><td>Tra cứu DNS.</td><td><code>dig +short example.com</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s9">
+      <h2><span class="n">09</span> Quản lý gói phần mềm</h2>
+      <p class="intro">Cách cài đặt phần mềm khác nhau tùy họ distro.</p>
+      <h3>Debian / Ubuntu (apt)</h3>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>apt update</code></td><td>Cập nhật danh sách gói từ repository.</td><td><code>sudo apt update</code></td></tr>
+        <tr><td><code>apt upgrade</code></td><td>Nâng cấp toàn bộ gói đã cài.</td><td><code>sudo apt upgrade -y</code></td></tr>
+        <tr><td><code>apt install</code></td><td>Cài gói mới.</td><td><code>sudo apt install -y nginx</code></td></tr>
+        <tr><td><code>apt remove</code> / <code>purge</code></td><td>Gỡ gói (purge xóa luôn config).</td><td><code>sudo apt purge nginx</code></td></tr>
+        <tr><td><code>apt autoremove</code></td><td>Dọn dependency không còn cần thiết.</td><td><code>sudo apt autoremove</code></td></tr>
+        <tr><td><code>dpkg -i</code> / <code>-l</code></td><td>Cài trực tiếp từ .deb / liệt kê gói đã cài.</td><td><code>sudo dpkg -i app.deb</code></td></tr>
+      </table></div>
+      <h3>RHEL / CentOS / Fedora / Amazon Linux (dnf/yum)</h3>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>dnf install</code></td><td>Cài gói mới (yum trên bản cũ hơn).</td><td><code>sudo dnf install -y nginx</code></td></tr>
+        <tr><td><code>dnf update</code></td><td>Cập nhật toàn bộ hệ thống.</td><td><code>sudo dnf update -y</code></td></tr>
+        <tr><td><code>dnf remove</code></td><td>Gỡ gói.</td><td><code>sudo dnf remove nginx</code></td></tr>
+        <tr><td><code>rpm -ivh</code> / <code>-qa</code></td><td>Cài từ .rpm / liệt kê gói đã cài.</td><td><code>rpm -qa | grep openssl</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s10">
+      <h2><span class="n">10</span> Ổ đĩa &amp; lưu trữ</h2>
+      <p class="intro">Theo dõi dung lượng, gắn/tháo filesystem, và quản lý phân vùng.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>df -h</code></td><td>Dung lượng còn trống theo từng filesystem.</td><td><code>df -h</code></td></tr>
+        <tr><td><code>du -sh */</code></td><td>Dung lượng từng thư mục con.</td><td><code>du -sh /var/*/ | sort -rh | head</code></td></tr>
+        <tr><td><code>lsblk</code></td><td>Danh sách block device dạng cây.</td><td><code>lsblk -f</code></td></tr>
+        <tr><td><code>mount</code> / <code>umount</code></td><td>Gắn/tháo filesystem vào một thư mục.</td><td><code>mount /dev/xvdf1 /data</code></td></tr>
+        <tr><td><code>/etc/fstab</code></td><td>Cấu hình mount tự động khi boot.</td><td><code>UUID=... /data ext4 defaults 0 2</code></td></tr>
+        <tr><td><code>fdisk -l</code> / <code>parted</code></td><td>Xem/tạo bảng phân vùng ổ đĩa.</td><td><code>sudo fdisk -l</code></td></tr>
+        <tr><td><code>mkfs.ext4</code></td><td>Định dạng phân vùng với filesystem ext4.</td><td><code>mkfs.ext4 /dev/xvdf1</code></td></tr>
+        <tr><td><code>resize2fs</code></td><td>Mở rộng filesystem sau khi tăng dung lượng volume.</td><td><code>resize2fs /dev/xvdf1</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s11">
+      <h2><span class="n">11</span> Nén &amp; archive</h2>
+      <p class="intro"><code>tar</code> là định dạng đóng gói phổ biến nhất cho backup và triển khai.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>tar -czvf</code></td><td>Đóng gói + nén gzip.</td><td><code>tar -czvf backup.tar.gz ./app</code></td></tr>
+        <tr><td><code>tar -xzvf</code></td><td>Giải nén file .tar.gz.</td><td><code>tar -xzvf backup.tar.gz -C /opt/app</code></td></tr>
+        <tr><td><code>tar -tvf</code></td><td>Xem nội dung archive mà không giải nén.</td><td><code>tar -tvf backup.tar.gz</code></td></tr>
+        <tr><td><code>gzip</code> / <code>gunzip</code></td><td>Nén/giải nén file đơn lẻ .gz.</td><td><code>gzip app.log</code></td></tr>
+        <tr><td><code>zip</code> / <code>unzip</code></td><td>Nén/giải nén định dạng .zip.</td><td><code>unzip release.zip -d ./release</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s12">
+      <h2><span class="n">12</span> Giám sát hệ thống &amp; log</h2>
+      <p class="intro">Biết máy đang khỏe hay không, và tìm log đúng chỗ khi có sự cố.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>top</code> / <code>htop</code></td><td>CPU, RAM realtime theo tiến trình.</td><td><code>htop</code></td></tr>
+        <tr><td><code>vmstat</code></td><td>Thống kê CPU, memory, I/O theo chu kỳ.</td><td><code>vmstat 2 5</code></td></tr>
+        <tr><td><code>iostat</code></td><td>Tốc độ đọc/ghi đĩa theo device.</td><td><code>iostat -x 2</code></td></tr>
+        <tr><td><code>dmesg</code></td><td>Log kernel — lỗi phần cứng, OOM killer, driver.</td><td><code>dmesg -T | tail -50</code></td></tr>
+        <tr><td><code>journalctl</code></td><td>Log tập trung của toàn hệ thống.</td><td><code>journalctl -p err --since today</code></td></tr>
+        <tr><td><code>logrotate</code></td><td>Xoay vòng, nén, xóa log cũ tự động theo lịch.</td><td><code>logrotate -d /etc/logrotate.conf</code></td></tr>
+        <tr><td><code>watch</code></td><td>Chạy lặp lại một lệnh mỗi N giây để theo dõi thay đổi.</td><td><code>watch -n 2 df -h</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s13">
+      <h2><span class="n">13</span> Lập lịch công việc</h2>
+      <p class="intro"><code>cron</code> là cách truyền thống để chạy job định kỳ; systemd timer là lựa chọn hiện đại hơn.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>crontab -e</code> / <code>-l</code></td><td>Sửa/xem lịch cron của user hiện tại.</td><td><code>crontab -e</code></td></tr>
+        <tr><td><code>/etc/cron.d/</code></td><td>Thư mục cron job cấp hệ thống.</td><td><code>0 3 * * * root /opt/scripts/backup.sh</code></td></tr>
+        <tr><td><code>at</code></td><td>Chạy lệnh một lần vào thời điểm định trước.</td><td><code>echo "reboot" | at 03:00</code></td></tr>
+        <tr><td>systemd timer</td><td>Thay thế cron, kèm log qua journalctl.</td><td><code>systemctl list-timers</code></td></tr>
+      </table></div>
+      <div class="note">Cú pháp cron: <code>phút giờ ngày-tháng tháng thứ lệnh</code>. Ví dụ <code>*/15 * * * *</code> = mỗi 15 phút.</div>
+    </section>
+
+    <section id="s14">
+      <h2><span class="n">14</span> Biến môi trường &amp; cấu hình shell</h2>
+      <p class="intro">Cách ứng dụng và script nhận cấu hình mà không hard-code — nền tảng cho 12-factor app và CI/CD.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>export</code></td><td>Đặt biến môi trường cho session hiện tại.</td><td><code>export NODE_ENV=production</code></td></tr>
+        <tr><td><code>env</code> / <code>printenv</code></td><td>Liệt kê toàn bộ biến môi trường.</td><td><code>env | grep AWS_</code></td></tr>
+        <tr><td><code>echo $PATH</code></td><td>Danh sách thư mục shell tìm binary để chạy.</td><td><code>echo $PATH</code></td></tr>
+        <tr><td><code>~/.bashrc</code></td><td>Chạy mỗi khi mở shell tương tác mới.</td><td><code>echo 'alias ll="ls -la"' &gt;&gt; ~/.bashrc</code></td></tr>
+        <tr><td><code>alias</code></td><td>Đặt tên rút gọn cho lệnh dài.</td><td><code>alias gs="git status"</code></td></tr>
+        <tr><td><code>source</code></td><td>Nạp lại file script vào shell hiện tại.</td><td><code>source .env</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s15">
+      <h2><span class="n">15</span> Viết Bash script cơ bản</h2>
+      <p class="intro">Tự động hóa là lý do DevOps tồn tại. Một script tối thiểu cần: shebang, xử lý tham số, kiểm tra điều kiện, và exit code rõ ràng.</p>
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail   # dừng ngay khi có lỗi, biến chưa khai báo, hoặc lỗi trong pipe
+
+ENV="${1:-staging}"
+LOG_DIR="/var/log/deploy"
+
+if [[ ! -d "$LOG_DIR" ]]; then
+  mkdir -p "$LOG_DIR"
+fi
+
+for service in api worker scheduler; do
+  echo "Deploying $service to $ENV..."
+  systemctl restart "$service" || {
+    echo "Failed to restart $service" &gt;&amp;2
+    exit 1
+  }
+done
+
+echo "Deploy to $ENV completed."</code></pre>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Cú pháp</th><th>Mô tả</th></tr>
+        <tr><td><code>$1 $2 … $@ $#</code></td><td>Tham số dòng lệnh: từng tham số, toàn bộ, và số lượng.</td></tr>
+        <tr><td><code>$?</code></td><td>Exit code của lệnh vừa chạy — 0 là thành công.</td></tr>
+        <tr><td><code>if / elif / else / fi</code></td><td>Rẽ nhánh điều kiện.</td></tr>
+        <tr><td><code>for / while</code></td><td>Vòng lặp qua danh sách hoặc theo điều kiện.</td></tr>
+        <tr><td><code>function name() { ... }</code></td><td>Định nghĩa hàm tái sử dụng.</td></tr>
+        <tr><td><code>set -euo pipefail</code></td><td>Chế độ "strict" nên bật ở đầu mọi script production.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="s16">
+      <h2><span class="n">16</span> SSH &amp; bảo mật cơ bản</h2>
+      <p class="intro">SSH là kênh quản trị chính của mọi server Linux. Xem sâu hơn ở <a href="02-networking-security.html">Bước 2 — Mạng &amp; Bảo mật</a>.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>ssh-keygen</code></td><td>Tạo cặp khóa SSH mới.</td><td><code>ssh-keygen -t ed25519 -C "me@example.com"</code></td></tr>
+        <tr><td><code>ssh-copy-id</code></td><td>Copy public key lên server để đăng nhập không cần mật khẩu.</td><td><code>ssh-copy-id user@host</code></td></tr>
+        <tr><td><code>ssh -i</code></td><td>Đăng nhập chỉ định private key cụ thể.</td><td><code>ssh -i prod.pem deploy@host</code></td></tr>
+        <tr><td><code>chmod 600</code></td><td>Quyền bắt buộc cho private key.</td><td><code>chmod 600 ~/.ssh/id_ed25519</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s17">
+      <h2><span class="n">17</span> Namespaces &amp; nền tảng container</h2>
+      <p class="intro">Docker/Kubernetes dựng trên các tính năng có sẵn của kernel Linux. Hiểu phần này giúp debug container hiệu quả hơn.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm / Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td>Namespaces</td><td>Cô lập PID, network, mount, user… giữa các tiến trình.</td><td><code>lsns</code></td></tr>
+        <tr><td>cgroups</td><td>Giới hạn CPU/RAM/IO cho nhóm tiến trình.</td><td><code>cat /sys/fs/cgroup/memory.max</code></td></tr>
+        <tr><td><code>chroot</code></td><td>Đổi thư mục gốc của tiến trình.</td><td><code>chroot /mnt/newroot /bin/bash</code></td></tr>
+        <tr><td><code>docker ps</code> / <code>exec</code> / <code>logs</code></td><td>Quản lý và debug container đang chạy.</td><td><code>docker exec -it web bash</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s18">
+      <h2><span class="n">18</span> Công cụ hay dùng khác</h2>
+      <p class="intro">Không phải lệnh POSIX chuẩn nhưng gần như mọi máy chủ DevOps đều cần cài thêm.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>xargs</code></td><td>Biến output của lệnh trước thành tham số cho lệnh sau.</td><td><code>find . -name "*.log" | xargs rm</code></td></tr>
+        <tr><td><code>jq</code></td><td>Truy vấn, lọc, format JSON trên dòng lệnh.</td><td><code>curl -s api.example.com | jq '.data[].id'</code></td></tr>
+        <tr><td><code>tmux</code></td><td>Giữ session terminal sống dù mất kết nối SSH.</td><td><code>tmux new -s deploy</code></td></tr>
+        <tr><td><code>strace</code></td><td>Theo dõi system call của một tiến trình.</td><td><code>strace -p 1234</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="s19">
+      <h2><span class="n">19</span> Bước tiếp theo</h2>
+      <p class="intro">Sau khi vững Linux, bước tiếp theo trong lộ trình này là Mạng &amp; Bảo mật cơ bản.</p>
+      <div class="roadmap">
+        <div class="step"><span class="dot"></span><div><h4>Bước 2 · Mạng &amp; Bảo mật</h4><p>TCP/IP, DNS, TLS, firewall, VPN, VPC trên AWS — <a href="02-networking-security.html">mở tài liệu →</a></p></div></div>
+      </div>
+    </section>
+
+    <footer>
+      Cẩm nang này liệt kê các lệnh phổ biến nhất theo từng nhóm công việc DevOps. Khi gặp lệnh mới, luôn bắt đầu bằng <code>man &lt;lệnh&gt;</code> hoặc <code>&lt;lệnh&gt; --help</code>.
+    </footer>
+  </main>
+</div>
+</body>
+</html>
