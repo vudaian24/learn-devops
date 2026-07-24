@@ -365,6 +365,7 @@
         <tr><td>VPC Peering / Transit Gateway</td><td>Kết nối nhiều VPC với nhau, trong cùng hoặc khác tài khoản AWS.</td></tr>
       </table></div>
       <div class="note">Kiến trúc phổ biến: Load Balancer đặt ở subnet public, application/database đặt ở subnet private — chỉ Load Balancer nhận traffic trực tiếp từ Internet, phần còn lại được cách ly.</div>
+      <div class="note">Khác với subnet thông thường (mục 02, chỉ trừ 2 địa chỉ network/broadcast), AWS luôn giữ lại <strong>5 địa chỉ</strong> trong mỗi subnet CIDR: 4 địa chỉ đầu (network, VPC router, DNS, dự phòng) và 1 địa chỉ cuối (broadcast). Vậy một subnet <code>/24</code> chỉ có 251 IP dùng được, không phải 254 — cần tính dư khi thiết kế CIDR cho Terraform.</div>
     </section>
 
     <section id="n13">

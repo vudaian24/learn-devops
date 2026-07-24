@@ -172,7 +172,7 @@
         <tr><td><code>push</code> lên branch feature</td><td>Chạy lint + unit test nhanh, phản hồi sớm cho developer.</td></tr>
         <tr><td><code>pull_request</code></td><td>Chạy toàn bộ test suite + security scan trước khi cho phép merge.</td></tr>
         <tr><td><code>push</code> lên <code>main</code></td><td>Build image, deploy tự động lên staging.</td></tr>
-        <tr><td><code>tag</code> (ví dụ <code>v1.2.0</code>)</td><td>Đánh dấu một release chính thức, deploy lên production.</td></tr>
+        <tr><td><code>push</code> kèm tag (ví dụ <code>v1.2.0</code>)</td><td>Đánh dấu một release chính thức, deploy lên production. Không có event riêng tên "tag" — vẫn là <code>push</code>, lọc bằng <code>tags:</code>.</td></tr>
         <tr><td><code>schedule</code> (cron)</td><td>Chạy job định kỳ: quét bảo mật, dọn dẹp, backup.</td></tr>
         <tr><td>manual (workflow_dispatch)</td><td>Cho phép người vận hành chủ động bấm nút chạy khi cần.</td></tr>
       </table></div>
@@ -238,6 +238,10 @@
           npm ci
           npm test
 
+      - <span class="tok-keyword">name</span>: <span class="tok-string">Log in to registry</span>
+        <span class="tok-keyword">run</span>: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
+
       - <span class="tok-keyword">name</span>: <span class="tok-string">Build &amp; push image</span>
         <span class="tok-keyword">run</span>: |
           docker build -t myrepo/api:${{ github.sha }} .
@@ -297,7 +301,7 @@
       <p class="intro">Pipeline cần quyền truy cập nhạy cảm (registry, cloud) — quản lý sai cách là nguồn rò rỉ phổ biến nhất.</p>
       <div class="table-wrap"><table class="cmd">
         <tr><th>Khái niệm</th><th>Mô tả</th></tr>
-        <tr><td>GitHub Actions Secrets</td><td>Lưu secret mã hóa ở cấp repo/organization, không hiện trong log, inject qua <code>secrets.*</code>.</td></tr>
+        <tr><td>GitHub Actions Secrets</td><td>Lưu secret mã hóa ở cấp repo/organization/environment, không hiện trong log, inject qua <code>secrets.*</code>. Secret ở cấp environment còn có thể yêu cầu reviewer duyệt trước khi job được đọc.</td></tr>
         <tr><td>GitLab CI/CD Variables</td><td>Tương đương secrets của GitLab, có thể giới hạn theo branch/environment.</td></tr>
         <tr><td>OIDC federation</td><td>CI runner lấy quyền tạm thời từ AWS IAM Role qua token OIDC — không cần lưu access key dài hạn nào trong CI.</td></tr>
       </table></div>

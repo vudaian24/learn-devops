@@ -177,7 +177,7 @@
         <tr><td><code>docker tag</code></td><td>Gắn thêm tên/tag cho một image đã build.</td><td><code>docker tag myapp:1.0 myrepo/myapp:1.0</code></td></tr>
         <tr><td><code>docker push</code></td><td>Đẩy image lên registry.</td><td><code>docker push myrepo/myapp:1.0</code></td></tr>
         <tr><td><code>docker rmi</code></td><td>Xóa image khỏi máy local.</td><td><code>docker rmi myapp:1.0</code></td></tr>
-        <tr><td><code>docker image prune</code></td><td>Dọn image không còn container nào dùng (dangling).</td><td><code>docker image prune -a</code></td></tr>
+        <tr><td><code>docker image prune</code></td><td>Mặc định chỉ xóa image dangling (không tag, không container nào tham chiếu); thêm <code>-a</code> để xóa mọi image không được container nào dùng.</td><td><code>docker image prune -a</code></td></tr>
         <tr><td><code>docker history</code></td><td>Xem từng layer đã tạo nên image.</td><td><code>docker history myapp:1.0</code></td></tr>
       </table></div>
       <div class="note">Không bao giờ dùng tag <code>latest</code> cho production — luôn ghi rõ version hoặc git SHA để biết chính xác đang chạy bản nào, và để rollback dễ dàng.</div>
@@ -213,7 +213,7 @@
         <tr><td><code>ENV</code> / <code>ARG</code></td><td>Biến môi trường tồn tại lúc chạy (<code>ENV</code>) hoặc chỉ lúc build (<code>ARG</code>).</td></tr>
         <tr><td><code>EXPOSE</code></td><td>Khai báo port ứng dụng lắng nghe (chỉ mang tính tài liệu, không tự mở port).</td></tr>
         <tr><td><code>USER</code></td><td>Chuyển sang user không phải root để chạy ứng dụng.</td></tr>
-        <tr><td><code>CMD</code> / <code>ENTRYPOINT</code></td><td>Lệnh chạy khi container khởi động.</td></tr>
+        <tr><td><code>ENTRYPOINT</code> / <code>CMD</code></td><td>Lệnh chạy khi container khởi động: <code>ENTRYPOINT</code> là lệnh chính cố định, không bị ghi đè bởi tham số dòng lệnh; <code>CMD</code> là tham số mặc định cho <code>ENTRYPOINT</code> (hoặc lệnh mặc định nếu không có <code>ENTRYPOINT</code>) — dễ bị ghi đè bằng tham số truyền sau <code>docker run</code>.</td></tr>
         <tr><td><code>HEALTHCHECK</code></td><td>Lệnh Docker tự chạy định kỳ để kiểm tra container còn khỏe không.</td></tr>
       </table></div>
       <pre><code><span class="tok-keyword">FROM</span> node:20-alpine
@@ -289,11 +289,13 @@
       <div class="table-wrap"><table class="cmd">
         <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
         <tr><td><code>docker compose up -d</code></td><td>Khởi động toàn bộ service trong nền.</td><td><code>docker compose up -d</code></td></tr>
+        <tr><td><code>docker compose build</code></td><td>Build (hoặc rebuild) image cho các service khai báo <code>build:</code>.</td><td><code>docker compose build --no-cache</code></td></tr>
         <tr><td><code>docker compose down</code></td><td>Dừng và xóa container, network (giữ volume trừ khi thêm <code>-v</code>).</td><td><code>docker compose down</code></td></tr>
         <tr><td><code>docker compose logs -f</code></td><td>Xem log của tất cả service.</td><td><code>docker compose logs -f api</code></td></tr>
         <tr><td><code>docker compose ps</code></td><td>Trạng thái các service.</td><td><code>docker compose ps</code></td></tr>
         <tr><td><code>docker compose exec</code></td><td>Chạy lệnh trong một service đang sống.</td><td><code>docker compose exec api sh</code></td></tr>
       </table></div>
+      <div class="note">Dùng cú pháp <code>docker compose</code> (không gạch ngang) — đây là Compose V2, tích hợp sẵn trong Docker CLI. Lệnh <code>docker-compose</code> (có gạch ngang, binary rời) là bản V1 đã ngừng phát triển, chỉ còn gặp trên hệ thống cũ.</div>
     </section>
 
     <section id="d8">
@@ -329,7 +331,7 @@
         <tr><td><code>docker inspect</code></td><td>Xem exit code, mount, network config chi tiết.</td><td><code>docker inspect --format='{{.State.ExitCode}}' web</code></td></tr>
         <tr><td><code>docker events</code></td><td>Theo dõi realtime sự kiện start/stop/die của container.</td><td><code>docker events</code></td></tr>
         <tr><td><code>docker system df</code></td><td>Xem dung lượng đĩa Docker đang chiếm (image, container, volume).</td><td><code>docker system df</code></td></tr>
-        <tr><td><code>docker system prune</code></td><td>Dọn toàn bộ container/image/network không dùng.</td><td><code>docker system prune -a --volumes</code></td></tr>
+        <tr><td><code>docker system prune</code></td><td>Dọn container đã dừng, network và image dangling không dùng; thêm <code>-a</code> để xóa mọi image không dùng, <code>--volumes</code> để dọn cả volume không dùng.</td><td><code>docker system prune -a --volumes</code></td></tr>
       </table></div>
       <div class="warn">Container restart loop thường do: ứng dụng crash ngay khi khởi động (xem logs), thiếu biến môi trường bắt buộc, hoặc healthcheck fail liên tục — kiểm tra theo đúng thứ tự trên trước khi nghi ngờ hạ tầng.</div>
     </section>

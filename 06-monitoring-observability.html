@@ -177,7 +177,7 @@
       <pre><code><span class="tok-keyword">scrape_configs</span>:
   - <span class="tok-keyword">job_name</span>: <span class="tok-string">"api"</span>
     <span class="tok-keyword">static_configs</span>:
-      - targets: [<span class="tok-string">"api.internal:9100"</span>]
+      - <span class="tok-keyword">targets</span>: [<span class="tok-string">"api.internal:8080"</span>]
     <span class="tok-keyword">scrape_interval</span>: 15s</code></pre>
     </section>
 
@@ -187,7 +187,7 @@
       <div class="table-wrap"><table class="cmd">
         <tr><th>Query</th><th>Ý nghĩa</th></tr>
         <tr><td><code>up</code></td><td>1 nếu target đang được scrape thành công, 0 nếu không — kiểm tra target còn sống.</td></tr>
-        <tr><td><code>rate(http_requests_total[5m])</code></td><td>Tốc độ request trung bình mỗi giây trong 5 phút gần nhất.</td></tr>
+        <tr><td><code>rate(http_requests_total[5m])</code></td><td>Tốc độ tăng trung bình mỗi giây trong khoảng range vector 5 phút gần nhất — chỉ áp dụng đúng cho metric kiểu counter.</td></tr>
         <tr><td><code>sum by (job) (rate(...[5m]))</code></td><td>Cộng dồn tốc độ request, nhóm theo nhãn <code>job</code>.</td></tr>
         <tr><td><code>histogram_quantile(0.99, ...)</code></td><td>Tính latency p99 từ dữ liệu histogram — chỉ số cốt lõi để đo trải nghiệm người dùng.</td></tr>
       </table></div>

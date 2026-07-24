@@ -269,7 +269,7 @@
         <tr><td><code>systemctl status</code></td><td>Trạng thái, PID, log gần nhất của service.</td><td><code>systemctl status sshd</code></td></tr>
         <tr><td><code>systemctl enable/disable</code></td><td>Bật/tắt tự khởi động cùng hệ thống.</td><td><code>systemctl enable --now docker</code></td></tr>
         <tr><td><code>systemctl is-active</code> / <code>is-enabled</code></td><td>Kiểm tra nhanh trạng thái, dùng tốt trong script.</td><td><code>systemctl is-active nginx</code></td></tr>
-        <tr><td><code>systemctl list-units --type=service</code></td><td>Danh sách toàn bộ service đang được biết đến.</td><td><code>systemctl list-units --state=running</code></td></tr>
+        <tr><td><code>systemctl list-units --type=service</code></td><td>Danh sách service đã load (mặc định ẩn unit inactive — thêm <code>--all</code> để xem toàn bộ).</td><td><code>systemctl list-units --all --type=service</code></td></tr>
         <tr><td><code>systemctl daemon-reload</code></td><td>Nạp lại sau khi sửa unit file.</td><td><code>sudo systemctl daemon-reload</code></td></tr>
         <tr><td><code>journalctl -u</code></td><td>Log của một service cụ thể.</td><td><code>journalctl -u nginx -f</code></td></tr>
         <tr><td><code>journalctl -b</code></td><td>Log từ lần boot hiện tại.</td><td><code>journalctl -b -p err</code></td></tr>
@@ -323,6 +323,7 @@
         <tr><td><code>scp</code> / <code>rsync -avz</code></td><td>Copy/đồng bộ file qua SSH.</td><td><code>rsync -avz ./dist/ user@host:/var/www/</code></td></tr>
         <tr><td><code>ss -tulpn</code></td><td>Danh sách port đang lắng nghe và tiến trình sở hữu.</td><td><code>ss -tulpn | grep :443</code></td></tr>
         <tr><td><code>dig</code> / <code>nslookup</code></td><td>Tra cứu DNS.</td><td><code>dig +short example.com</code></td></tr>
+        <tr><td><code>nc -zv</code></td><td>Kiểm tra nhanh một TCP port có mở/kết nối được không.</td><td><code>nc -zv db.internal 5432</code></td></tr>
       </table></div>
     </section>
 
@@ -361,7 +362,8 @@
         <tr><td><code>/etc/fstab</code></td><td>Cấu hình mount tự động khi boot.</td><td><code>UUID=... /data ext4 defaults 0 2</code></td></tr>
         <tr><td><code>fdisk -l</code> / <code>parted</code></td><td>Xem/tạo bảng phân vùng ổ đĩa.</td><td><code>sudo fdisk -l</code></td></tr>
         <tr><td><code>mkfs.ext4</code></td><td>Định dạng phân vùng với filesystem ext4.</td><td><code>mkfs.ext4 /dev/xvdf1</code></td></tr>
-        <tr><td><code>resize2fs</code></td><td>Mở rộng filesystem sau khi tăng dung lượng volume.</td><td><code>resize2fs /dev/xvdf1</code></td></tr>
+        <tr><td><code>fsck</code></td><td>Kiểm tra và sửa lỗi filesystem (chạy khi đã umount).</td><td><code>fsck -y /dev/xvdf1</code></td></tr>
+        <tr><td><code>resize2fs</code></td><td>Mở rộng filesystem ext2/3/4 sau khi tăng dung lượng volume (XFS dùng <code>xfs_growfs</code>).</td><td><code>resize2fs /dev/xvdf1</code></td></tr>
       </table></div>
     </section>
 
@@ -462,6 +464,7 @@ echo <span class="tok-string">"Deploy to <span class="tok-var">$ENV</span> compl
         <tr><td><code>ssh-copy-id</code></td><td>Copy public key lên server để đăng nhập không cần mật khẩu.</td><td><code>ssh-copy-id user@host</code></td></tr>
         <tr><td><code>ssh -i</code></td><td>Đăng nhập chỉ định private key cụ thể.</td><td><code>ssh -i prod.pem deploy@host</code></td></tr>
         <tr><td><code>chmod 600</code></td><td>Quyền bắt buộc cho private key.</td><td><code>chmod 600 ~/.ssh/id_ed25519</code></td></tr>
+        <tr><td><code>ssh-agent</code> / <code>ssh-add</code></td><td>Giữ private key trong bộ nhớ để không phải nhập passphrase mỗi lần SSH.</td><td><code>eval "$(ssh-agent)" &amp;&amp; ssh-add ~/.ssh/id_ed25519</code></td></tr>
       </table></div>
     </section>
 
@@ -473,6 +476,7 @@ echo <span class="tok-string">"Deploy to <span class="tok-var">$ENV</span> compl
         <tr><td>Namespaces</td><td>Cô lập PID, network, mount, user… giữa các tiến trình.</td><td><code>lsns</code></td></tr>
         <tr><td>cgroups</td><td>Giới hạn CPU/RAM/IO cho nhóm tiến trình.</td><td><code>cat /sys/fs/cgroup/memory.max</code></td></tr>
         <tr><td><code>chroot</code></td><td>Đổi thư mục gốc của tiến trình.</td><td><code>chroot /mnt/newroot /bin/bash</code></td></tr>
+        <tr><td><code>nsenter</code></td><td>Chạy lệnh trong namespace của tiến trình khác — dùng để debug container không có shell.</td><td><code>nsenter -t $(docker inspect -f '{{.State.Pid}}' web) -n ss -tulpn</code></td></tr>
         <tr><td><code>docker ps</code> / <code>exec</code> / <code>logs</code></td><td>Quản lý và debug container đang chạy.</td><td><code>docker exec -it web bash</code></td></tr>
       </table></div>
     </section>
