@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bước 5 · CI/CD</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --ink:#1e2733;
+    --ink-soft:#66707c;
+    --accent:#2f6fed;
+    --accent-dark:#1d4fbe;
+    --accent-bg:#e8f0ff;
+    --border:#dfe4ec;
+    --code-bg:#eef1f8;
+    --code-ink:#1d4fbe;
+    --warn-bg:#fff3e6;
+    --warn-border:#e08a2b;
+    --warn-ink:#8a4b0c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15.5px;
+    line-height:1.65;
+  }
+  code, pre{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+  a{ color:var(--accent); }
+
+  .course-nav{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:20px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:12px 24px;
+  }
+  .course-nav a.home{ color:var(--ink); text-decoration:none; font-weight:600; font-size:14px; }
+  .course-nav .steps{ display:flex; flex-wrap:wrap; gap:8px; margin-left:auto; justify-content:flex-end; }
+  .course-nav .steps a{
+    text-decoration:none; font-size:13px; color:var(--ink-soft);
+    padding:6px 12px; border-radius:6px; border:1px solid transparent;
+  }
+  .course-nav .steps a.active{ background:var(--accent-bg); color:var(--accent-dark); font-weight:600; }
+  .course-nav .steps a:hover:not(.active){ border-color:var(--border); }
+
+  .layout{
+    max-width:1020px;
+    margin:0 auto;
+    padding:32px 24px 100px;
+    position:relative;
+  }
+
+  nav.toc{
+    position:fixed;
+    top:102px;
+    left:max(24px, calc((100vw - 1020px) / 2 + 24px));
+    width:240px;
+    max-height:calc(100vh - 126px);
+    overflow-y:auto;
+  }
+
+  main{ display:block; margin-left:280px; }
+
+  @media (max-width:860px){
+    nav.toc{ position:static; left:auto; top:auto; width:auto; max-height:none; margin-bottom:28px; }
+    main{ margin-left:0; }
+  }
+  nav.toc .eyebrow{ font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px; }
+  nav.toc ol{ list-style:none; margin:0; padding:0; counter-reset:toc; }
+  nav.toc li{ counter-increment:toc; }
+  nav.toc a{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:15px; padding:6px 8px; border-radius:6px; }
+  nav.toc a:hover{ background:var(--accent-bg); color:var(--accent-dark); }
+  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:15px; font-weight:600; flex:none; }
+
+  header.hero{ max-width:720px; margin:0 auto 8px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+  header.hero .eyebrow{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600; }
+  header.hero h1{ font-size:30px; margin:0 0 12px; }
+  header.hero p{ color:var(--ink-soft); max-width:62ch; margin:0 0 8px; }
+
+  section{ max-width:720px; margin:44px auto 0; scroll-margin-top:80px; }
+  section h2{ font-size:21px; margin:0 0 6px; display:flex; align-items:baseline; gap:10px; }
+  section h2 .n{ color:var(--accent); }
+  section > p.intro{ color:var(--ink-soft); margin:0 0 18px; max-width:65ch; }
+  section h3{ font-size:15px; margin:24px 0 8px; color:var(--accent-dark); }
+
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:8px; margin-bottom:14px; }
+  table.cmd{ width:100%; border-collapse:collapse; background:var(--surface); font-size:13.5px; }
+  table.cmd th{ text-align:left; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.cmd td{ padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.cmd tr:last-child td{ border-bottom:none; }
+  table.cmd td:first-child{ white-space:nowrap; }
+  code{ background:var(--code-bg); color:var(--code-ink); padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:400; border:1px solid rgba(29,79,190,0.12); }
+  table.cmd code{ padding:2px 5px; font-size:13px; }
+
+  pre{ background:var(--code-bg); color:var(--ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
+  pre code{ background:none; padding:0; border:none; font-weight:400; color:inherit; }
+  .tok-comment{ color:#7d8590; font-style:italic; }
+  .tok-string{ color:#b45309; }
+  .tok-keyword{ color:#7c3aed; }
+  .tok-var{ color:#0f766e; }
+  .tok-section{ color:var(--accent-dark); }
+
+  .note{ background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--ink); margin:14px 0; }
+  .warn{ background:var(--warn-bg); border-left:3px solid var(--warn-border); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--warn-ink); margin:14px 0; }
+
+  .checklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .checklist li{ display:flex; gap:10px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:14px; }
+  .checklist li::before{ content:"✓"; color:var(--accent); font-weight:700; flex:none; }
+</style>
+</head>
+<body>
+
+<div class="course-nav">
+  <a class="home" href="index.html">← Học DevOps</a>
+  <div class="steps">
+    <a href="01-linux-devops.html">Bước 1 · Linux</a>
+    <a href="02-networking-security.html">Bước 2 · Mạng &amp; Bảo mật</a>
+    <a href="03-docker.html">Bước 3 · Docker</a>
+    <a href="04-kubernetes.html">Bước 4 · Kubernetes</a>
+    <a class="active" href="05-ci-cd.html">Bước 5 · CI/CD</a>
+    <a href="06-monitoring-observability.html">Bước 6 · Monitoring</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="toc">
+    <p class="eyebrow">Mục lục</p>
+    <ol>
+      <li><a href="#c1">CI/CD là gì</a></li>
+      <li><a href="#c2">Git workflow &amp; trigger</a></li>
+      <li><a href="#c3">Anatomy của 1 pipeline</a></li>
+      <li><a href="#c4">GitHub Actions cơ bản</a></li>
+      <li><a href="#c5">Ví dụ pipeline đầy đủ</a></li>
+      <li><a href="#c6">So sánh công cụ CI/CD</a></li>
+      <li><a href="#c7">Build &amp; test tự động</a></li>
+      <li><a href="#c8">Đóng gói &amp; đẩy artifact</a></li>
+      <li><a href="#c9">Chiến lược Deployment</a></li>
+      <li><a href="#c10">Secrets trong CI/CD</a></li>
+      <li><a href="#c11">Best practices</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Bước 05</p>
+      <h1>CI/CD cho DevOps</h1>
+      <p>Tự động hóa từ lúc commit code tới lúc chạy trên production — giảm lỗi con người, rút ngắn thời gian phát hành. 11 phần đi từ khái niệm, GitHub Actions, đến chiến lược deploy an toàn.</p>
+    </header>
+
+    <section id="c1">
+      <h2><span class="n">01</span> CI/CD là gì</h2>
+      <p class="intro">CI/CD là chuỗi tự động hóa biến một lần <code>git push</code> thành một bản chạy được trên production, qua các mức độ tự động khác nhau.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>Continuous Integration (CI)</td><td>Tự động build &amp; test mỗi lần code được push, phát hiện lỗi ngay thay vì dồn tới cuối sprint.</td></tr>
+        <tr><td>Continuous Delivery</td><td>Tự động chuẩn bị một bản release luôn sẵn sàng deploy — nhưng bước deploy cuối cùng cần người bấm nút duyệt.</td></tr>
+        <tr><td>Continuous Deployment</td><td>Tự động deploy thẳng lên production ngay khi pipeline pass, không cần con người can thiệp.</td></tr>
+      </table></div>
+      <div class="note">Phân biệt nhanh: cả 3 đều tự động build/test; khác nhau ở việc bước cuối "lên production" có cần người duyệt hay không.</div>
+    </section>
+
+    <section id="c2">
+      <h2><span class="n">02</span> Git workflow làm nền cho CI/CD</h2>
+      <p class="intro">Pipeline được kích hoạt bởi sự kiện Git — hiểu rõ trigger nào chạy gì giúp thiết kế pipeline hợp lý và tiết kiệm chi phí CI.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Sự kiện</th><th>Thường dùng để</th></tr>
+        <tr><td><code>push</code> lên branch feature</td><td>Chạy lint + unit test nhanh, phản hồi sớm cho developer.</td></tr>
+        <tr><td><code>pull_request</code></td><td>Chạy toàn bộ test suite + security scan trước khi cho phép merge.</td></tr>
+        <tr><td><code>push</code> lên <code>main</code></td><td>Build image, deploy tự động lên staging.</td></tr>
+        <tr><td><code>tag</code> (ví dụ <code>v1.2.0</code>)</td><td>Đánh dấu một release chính thức, deploy lên production.</td></tr>
+        <tr><td><code>schedule</code> (cron)</td><td>Chạy job định kỳ: quét bảo mật, dọn dẹp, backup.</td></tr>
+        <tr><td>manual (workflow_dispatch)</td><td>Cho phép người vận hành chủ động bấm nút chạy khi cần.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="c3">
+      <h2><span class="n">03</span> Anatomy của một pipeline</h2>
+      <p class="intro">Một pipeline điển hình gồm các stage nối tiếp nhau, dừng ngay nếu một stage fail (fail fast).</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Thứ tự</th><th>Stage</th><th>Mục đích</th></tr>
+        <tr><td>1</td><td>Checkout</td><td>Lấy code từ Git về máy chạy CI (runner).</td></tr>
+        <tr><td>2</td><td>Install dependencies</td><td>Cài package, thường có cache để tăng tốc lần chạy sau.</td></tr>
+        <tr><td>3</td><td>Lint</td><td>Kiểm tra style code, phát hiện lỗi cú pháp sớm và rẻ nhất.</td></tr>
+        <tr><td>4</td><td>Unit test</td><td>Test từng phần logic độc lập, chạy nhanh.</td></tr>
+        <tr><td>5</td><td>Build</td><td>Compile hoặc bundle ứng dụng.</td></tr>
+        <tr><td>6</td><td>Security scan</td><td>Quét lỗ hổng dependency/code/image (xem mục 07).</td></tr>
+        <tr><td>7</td><td>Package</td><td>Đóng gói thành Docker image hoặc artifact.</td></tr>
+        <tr><td>8</td><td>Push registry</td><td>Đẩy artifact lên nơi lưu trữ để bước deploy lấy về.</td></tr>
+        <tr><td>9</td><td>Deploy staging</td><td>Triển khai tự động lên môi trường staging để kiểm thử.</td></tr>
+        <tr><td>10</td><td>Integration test</td><td>Test toàn hệ thống trên môi trường giống thật.</td></tr>
+        <tr><td>11</td><td>Deploy production</td><td>Triển khai lên production, thường có cổng duyệt thủ công.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="c4">
+      <h2><span class="n">04</span> GitHub Actions cơ bản</h2>
+      <p class="intro">GitHub Actions định nghĩa pipeline bằng file YAML đặt trong <code>.github/workflows/</code>.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Trường</th><th>Mô tả</th></tr>
+        <tr><td><code>name</code></td><td>Tên hiển thị của workflow.</td></tr>
+        <tr><td><code>on</code></td><td>Sự kiện kích hoạt (push, pull_request, schedule...).</td></tr>
+        <tr><td><code>jobs</code></td><td>Nhóm các job, mỗi job chạy trên một runner riêng, mặc định song song.</td></tr>
+        <tr><td><code>runs-on</code></td><td>Loại máy chạy job (ubuntu-latest, self-hosted...).</td></tr>
+        <tr><td><code>steps</code></td><td>Danh sách bước tuần tự trong một job.</td></tr>
+        <tr><td><code>uses</code></td><td>Dùng lại một action có sẵn (viết bởi cộng đồng hoặc chính bạn).</td></tr>
+        <tr><td><code>run</code></td><td>Chạy trực tiếp một lệnh shell.</td></tr>
+        <tr><td><code>env</code> / <code>secrets</code></td><td>Biến môi trường thường và biến nhạy cảm (xem mục 10).</td></tr>
+      </table></div>
+    </section>
+
+    <section id="c5">
+      <h2><span class="n">05</span> Ví dụ pipeline GitHub Actions đầy đủ</h2>
+      <p class="intro">Build, test, và đẩy Docker image lên registry mỗi khi push vào <code>main</code>.</p>
+      <pre><code><span class="tok-keyword">name</span>: CI
+
+<span class="tok-keyword">on</span>:
+  push:
+    branches: [main]
+
+<span class="tok-keyword">jobs</span>:
+  <span class="tok-keyword">build-and-push</span>:
+    <span class="tok-keyword">runs-on</span>: ubuntu-latest
+    <span class="tok-keyword">steps</span>:
+      - <span class="tok-keyword">uses</span>: actions/checkout@v4
+
+      - <span class="tok-keyword">name</span>: <span class="tok-string">Set up Node</span>
+        <span class="tok-keyword">uses</span>: actions/setup-node@v4
+        with:
+          node-version: <span class="tok-string">"20"</span>
+
+      - <span class="tok-keyword">name</span>: <span class="tok-string">Install &amp; test</span>
+        <span class="tok-keyword">run</span>: |
+          npm ci
+          npm test
+
+      - <span class="tok-keyword">name</span>: <span class="tok-string">Build &amp; push image</span>
+        <span class="tok-keyword">run</span>: |
+          docker build -t myrepo/api:${{ github.sha }} .
+          docker push myrepo/api:${{ github.sha }}</code></pre>
+      <div class="note">Tag image bằng <code>github.sha</code> (mã commit) thay vì <code>latest</code> — mỗi lần build ra một artifact định danh rõ ràng, dễ truy vết và rollback.</div>
+    </section>
+
+    <section id="c6">
+      <h2><span class="n">06</span> So sánh công cụ CI/CD</h2>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Công cụ</th><th>File cấu hình</th><th>Đặc điểm</th></tr>
+        <tr><td>GitHub Actions</td><td><code>.github/workflows/*.yml</code></td><td>Tích hợp sẵn với GitHub, kho action cộng đồng lớn, managed runner miễn phí cho public repo.</td></tr>
+        <tr><td>GitLab CI</td><td><code>.gitlab-ci.yml</code></td><td>Tích hợp sâu với GitLab, mạnh về pipeline phức tạp nhiều stage.</td></tr>
+        <tr><td>Jenkins</td><td><code>Jenkinsfile</code></td><td>Tự host, cực kỳ linh hoạt qua plugin, nhưng tốn công vận hành hạ tầng riêng.</td></tr>
+        <tr><td>CircleCI</td><td><code>.circleci/config.yml</code></td><td>Managed, tối ưu tốc độ build qua cache và parallelism.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="c7">
+      <h2><span class="n">07</span> Build &amp; test tự động</h2>
+      <p class="intro">Càng phát hiện lỗi sớm trong pipeline, chi phí sửa càng thấp — đây là lý do stage rẻ (lint) luôn chạy trước stage đắt (build, deploy).</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Loại kiểm tra</th><th>Mô tả</th><th>Ví dụ công cụ</th></tr>
+        <tr><td>Lint</td><td>Kiểm tra style/cú pháp code.</td><td>ESLint, tflint (cho Terraform)</td></tr>
+        <tr><td>Unit test</td><td>Test từng hàm/module độc lập.</td><td>Jest, pytest, go test</td></tr>
+        <tr><td>SAST (Static Application Security Testing)</td><td>Quét mã nguồn tìm lỗ hổng bảo mật mà không cần chạy ứng dụng.</td><td>Semgrep, CodeQL</td></tr>
+        <tr><td>Dependency scan</td><td>Quét thư viện bên thứ ba có lỗ hổng đã biết (CVE).</td><td>Dependabot, Snyk</td></tr>
+        <tr><td>IaC scan</td><td>Quét file Terraform tìm cấu hình sai/không an toàn — áp dụng trực tiếp cho repo của bạn.</td><td>tfsec, checkov</td></tr>
+      </table></div>
+    </section>
+
+    <section id="c8">
+      <h2><span class="n">08</span> Đóng gói &amp; đẩy artifact</h2>
+      <p class="intro">Kết quả build cần được đóng gói thành một đơn vị bất biến, có version rõ ràng, để mọi môi trường đều chạy đúng một bản.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Bước</th><th>Mô tả</th></tr>
+        <tr><td>Build image</td><td>Build Docker image từ Dockerfile (xem Bước 3).</td></tr>
+        <tr><td>Gắn tag phiên bản</td><td>Dùng git SHA hoặc semantic version (<code>v1.4.0</code>), không dùng <code>latest</code>.</td></tr>
+        <tr><td>Đẩy registry</td><td>Push lên Amazon ECR, Docker Hub, hoặc GitHub Container Registry.</td></tr>
+        <tr><td>Quét trước khi deploy</td><td>Quét lỗ hổng image (Trivy) ngay trong pipeline trước khi cho phép deploy.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="c9">
+      <h2><span class="n">09</span> Chiến lược Deployment</h2>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Chiến lược</th><th>Mô tả</th><th>Đánh đổi</th></tr>
+        <tr><td>Recreate</td><td>Tắt hết bản cũ rồi mới chạy bản mới.</td><td>Đơn giản nhất nhưng có downtime.</td></tr>
+        <tr><td>Rolling update</td><td>Thay dần từng instance cũ bằng instance mới.</td><td>Không downtime, nhưng có lúc cả 2 version cùng chạy song song.</td></tr>
+        <tr><td>Blue-Green</td><td>Dựng song song 2 môi trường đầy đủ, chuyển traffic tức thì từ cũ sang mới.</td><td>Rollback tức thì, nhưng tốn gấp đôi tài nguyên trong lúc chuyển đổi.</td></tr>
+        <tr><td>Canary</td><td>Cho một tỷ lệ nhỏ traffic dùng thử version mới trước khi mở rộng dần.</td><td>An toàn nhất, nhưng cần theo dõi metrics kỹ (xem Bước 6).</td></tr>
+      </table></div>
+    </section>
+
+    <section id="c10">
+      <h2><span class="n">10</span> Quản lý secrets trong CI/CD</h2>
+      <p class="intro">Pipeline cần quyền truy cập nhạy cảm (registry, cloud) — quản lý sai cách là nguồn rò rỉ phổ biến nhất.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>GitHub Actions Secrets</td><td>Lưu secret mã hóa ở cấp repo/organization, không hiện trong log, inject qua <code>secrets.*</code>.</td></tr>
+        <tr><td>GitLab CI/CD Variables</td><td>Tương đương secrets của GitLab, có thể giới hạn theo branch/environment.</td></tr>
+        <tr><td>OIDC federation</td><td>CI runner lấy quyền tạm thời từ AWS IAM Role qua token OIDC — không cần lưu access key dài hạn nào trong CI.</td></tr>
+      </table></div>
+      <div class="warn">Không bao giờ <code>echo</code> hay <code>print</code> giá trị secret trong step log — nhiều CI hệ thống tự động mask, nhưng không phải lúc nào cũng đáng tin cậy 100%.</div>
+    </section>
+
+    <section id="c11">
+      <h2><span class="n">11</span> Best practices</h2>
+      <ul class="checklist">
+        <li>Fail fast: chạy lint/unit test rẻ trước, để stage tốn thời gian (build, deploy) chỉ chạy khi cần.</li>
+        <li>Cache dependency (node_modules, pip cache) để rút ngắn thời gian chạy pipeline.</li>
+        <li>Pin version cụ thể cho action/base image, không dùng <code>@latest</code> hay <code>@main</code>.</li>
+        <li>Bắt buộc PR review + status check pass trước khi merge vào branch chính.</li>
+        <li>Tách rõ approval gate giữa staging (tự động) và production (cần người duyệt).</li>
+        <li>Luôn có kế hoạch rollback rõ ràng — biết chính xác lệnh nào để quay lại version trước.</li>
+        <li>Dùng OIDC thay vì access key tĩnh khi CI cần gọi tới cloud provider.</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

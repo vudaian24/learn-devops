@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bước 4 · Kubernetes</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --ink:#1e2733;
+    --ink-soft:#66707c;
+    --accent:#2f6fed;
+    --accent-dark:#1d4fbe;
+    --accent-bg:#e8f0ff;
+    --border:#dfe4ec;
+    --code-bg:#eef1f8;
+    --code-ink:#1d4fbe;
+    --warn-bg:#fff3e6;
+    --warn-border:#e08a2b;
+    --warn-ink:#8a4b0c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15.5px;
+    line-height:1.65;
+  }
+  code, pre{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+  a{ color:var(--accent); }
+
+  .course-nav{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:20px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:12px 24px;
+  }
+  .course-nav a.home{ color:var(--ink); text-decoration:none; font-weight:600; font-size:14px; }
+  .course-nav .steps{ display:flex; flex-wrap:wrap; gap:8px; margin-left:auto; justify-content:flex-end; }
+  .course-nav .steps a{
+    text-decoration:none; font-size:13px; color:var(--ink-soft);
+    padding:6px 12px; border-radius:6px; border:1px solid transparent;
+  }
+  .course-nav .steps a.active{ background:var(--accent-bg); color:var(--accent-dark); font-weight:600; }
+  .course-nav .steps a:hover:not(.active){ border-color:var(--border); }
+
+  .layout{
+    max-width:1020px;
+    margin:0 auto;
+    padding:32px 24px 100px;
+    position:relative;
+  }
+
+  nav.toc{
+    position:fixed;
+    top:102px;
+    left:max(24px, calc((100vw - 1020px) / 2 + 24px));
+    width:240px;
+    max-height:calc(100vh - 126px);
+    overflow-y:auto;
+  }
+
+  main{ display:block; margin-left:280px; }
+
+  @media (max-width:860px){
+    nav.toc{ position:static; left:auto; top:auto; width:auto; max-height:none; margin-bottom:28px; }
+    main{ margin-left:0; }
+  }
+  nav.toc .eyebrow{ font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px; }
+  nav.toc ol{ list-style:none; margin:0; padding:0; counter-reset:toc; }
+  nav.toc li{ counter-increment:toc; }
+  nav.toc a{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:15px; padding:6px 8px; border-radius:6px; }
+  nav.toc a:hover{ background:var(--accent-bg); color:var(--accent-dark); }
+  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:15px; font-weight:600; flex:none; }
+
+  header.hero{ max-width:720px; margin:0 auto 8px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+  header.hero .eyebrow{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600; }
+  header.hero h1{ font-size:30px; margin:0 0 12px; }
+  header.hero p{ color:var(--ink-soft); max-width:62ch; margin:0 0 8px; }
+
+  section{ max-width:720px; margin:44px auto 0; scroll-margin-top:80px; }
+  section h2{ font-size:21px; margin:0 0 6px; display:flex; align-items:baseline; gap:10px; }
+  section h2 .n{ color:var(--accent); }
+  section > p.intro{ color:var(--ink-soft); margin:0 0 18px; max-width:65ch; }
+  section h3{ font-size:15px; margin:24px 0 8px; color:var(--accent-dark); }
+
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:8px; margin-bottom:14px; }
+  table.cmd{ width:100%; border-collapse:collapse; background:var(--surface); font-size:13.5px; }
+  table.cmd th{ text-align:left; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.cmd td{ padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.cmd tr:last-child td{ border-bottom:none; }
+  table.cmd td:first-child{ white-space:nowrap; }
+  code{ background:var(--code-bg); color:var(--code-ink); padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:400; border:1px solid rgba(29,79,190,0.12); }
+  table.cmd code{ padding:2px 5px; font-size:13px; }
+
+  pre{ background:var(--code-bg); color:var(--ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
+  pre code{ background:none; padding:0; border:none; font-weight:400; color:inherit; }
+  .tok-comment{ color:#7d8590; font-style:italic; }
+  .tok-string{ color:#b45309; }
+  .tok-keyword{ color:#7c3aed; }
+  .tok-var{ color:#0f766e; }
+  .tok-section{ color:var(--accent-dark); }
+
+  .note{ background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--ink); margin:14px 0; }
+  .warn{ background:var(--warn-bg); border-left:3px solid var(--warn-border); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--warn-ink); margin:14px 0; }
+
+  .checklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .checklist li{ display:flex; gap:10px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:14px; }
+  .checklist li::before{ content:"✓"; color:var(--accent); font-weight:700; flex:none; }
+</style>
+</head>
+<body>
+
+<div class="course-nav">
+  <a class="home" href="index.html">← Học DevOps</a>
+  <div class="steps">
+    <a href="01-linux-devops.html">Bước 1 · Linux</a>
+    <a href="02-networking-security.html">Bước 2 · Mạng &amp; Bảo mật</a>
+    <a href="03-docker.html">Bước 3 · Docker</a>
+    <a class="active" href="04-kubernetes.html">Bước 4 · Kubernetes</a>
+    <a href="05-ci-cd.html">Bước 5 · CI/CD</a>
+    <a href="06-monitoring-observability.html">Bước 6 · Monitoring</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="toc">
+    <p class="eyebrow">Mục lục</p>
+    <ol>
+      <li><a href="#k1">Kiến trúc Kubernetes</a></li>
+      <li><a href="#k2">kubectl cơ bản</a></li>
+      <li><a href="#k3">Pod</a></li>
+      <li><a href="#k4">Deployment &amp; ReplicaSet</a></li>
+      <li><a href="#k5">Service</a></li>
+      <li><a href="#k6">ConfigMap &amp; Secret</a></li>
+      <li><a href="#k7">Ingress</a></li>
+      <li><a href="#k8">Volume &amp; PV/PVC</a></li>
+      <li><a href="#k9">Namespace &amp; RBAC</a></li>
+      <li><a href="#k10">Helm</a></li>
+      <li><a href="#k11">Debug &amp; troubleshooting</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Bước 04</p>
+      <h1>Kubernetes cho DevOps</h1>
+      <p>Điều phối hàng trăm container một cách tự động: tự phục hồi, tự scale, tự cập nhật. 11 phần đi từ kiến trúc, các resource cốt lõi, đến Helm và debug thực chiến.</p>
+    </header>
+
+    <section id="k1">
+      <h2><span class="n">01</span> Kiến trúc Kubernetes</h2>
+      <p class="intro">Một cluster Kubernetes gồm 2 nhóm máy: Control Plane (bộ não điều phối) và Worker Node (nơi container thực sự chạy).</p>
+      <h3>Control Plane</h3>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Thành phần</th><th>Mô tả</th></tr>
+        <tr><td><code>kube-apiserver</code></td><td>Cổng giao tiếp duy nhất — mọi lệnh <code>kubectl</code> và thành phần khác đều đi qua đây.</td></tr>
+        <tr><td><code>etcd</code></td><td>Cơ sở dữ liệu key-value lưu toàn bộ trạng thái cluster.</td></tr>
+        <tr><td><code>kube-scheduler</code></td><td>Quyết định Pod mới được đặt lên node nào dựa trên tài nguyên còn trống.</td></tr>
+        <tr><td><code>kube-controller-manager</code></td><td>Chạy các vòng lặp điều khiển đảm bảo trạng thái thực tế khớp trạng thái mong muốn.</td></tr>
+      </table></div>
+      <h3>Worker Node</h3>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Thành phần</th><th>Mô tả</th></tr>
+        <tr><td><code>kubelet</code></td><td>Agent trên mỗi node, đảm bảo container trong Pod thực sự chạy đúng như khai báo.</td></tr>
+        <tr><td><code>kube-proxy</code></td><td>Quản lý rule mạng để traffic tới Service được định tuyến đúng Pod.</td></tr>
+        <tr><td>Container runtime</td><td>Phần mềm thực sự chạy container (containerd, CRI-O).</td></tr>
+      </table></div>
+      <div class="note">Nguyên lý cốt lõi: bạn khai báo trạng thái mong muốn (declarative, qua YAML) — Kubernetes liên tục điều chỉnh để trạng thái thực tế khớp với nó (reconciliation loop).</div>
+    </section>
+
+    <section id="k2">
+      <h2><span class="n">02</span> kubectl — lệnh cơ bản</h2>
+      <p class="intro"><code>kubectl</code> là CLI chính để tương tác với cluster qua kube-apiserver.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>kubectl get</code></td><td>Liệt kê resource.</td><td><code>kubectl get pods -n prod</code></td></tr>
+        <tr><td><code>kubectl describe</code></td><td>Xem chi tiết + sự kiện gần nhất của một resource.</td><td><code>kubectl describe pod api-7d9f</code></td></tr>
+        <tr><td><code>kubectl apply -f</code></td><td>Tạo hoặc cập nhật resource từ file YAML.</td><td><code>kubectl apply -f deployment.yaml</code></td></tr>
+        <tr><td><code>kubectl delete</code></td><td>Xóa resource.</td><td><code>kubectl delete pod api-7d9f</code></td></tr>
+        <tr><td><code>kubectl logs -f</code></td><td>Xem log container trong Pod.</td><td><code>kubectl logs -f api-7d9f -c app</code></td></tr>
+        <tr><td><code>kubectl exec -it</code></td><td>Mở shell bên trong container.</td><td><code>kubectl exec -it api-7d9f -- sh</code></td></tr>
+        <tr><td><code>kubectl get all -n</code></td><td>Xem tổng quan mọi resource trong một namespace.</td><td><code>kubectl get all -n prod</code></td></tr>
+        <tr><td><code>kubectl config use-context</code></td><td>Chuyển giữa nhiều cluster đã cấu hình.</td><td><code>kubectl config use-context staging</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="k3">
+      <h2><span class="n">03</span> Pod — đơn vị nhỏ nhất</h2>
+      <p class="intro">Pod là đơn vị triển khai nhỏ nhất trong Kubernetes — thường chứa 1 container, đôi khi thêm container phụ (sidecar) chia sẻ network/volume.</p>
+      <pre><code><span class="tok-keyword">apiVersion</span>: v1
+<span class="tok-keyword">kind</span>: Pod
+<span class="tok-keyword">metadata</span>:
+  <span class="tok-keyword">name</span>: api
+  <span class="tok-keyword">labels</span>:
+    app: api
+<span class="tok-keyword">spec</span>:
+  <span class="tok-keyword">containers</span>:
+    - <span class="tok-keyword">name</span>: app
+      <span class="tok-keyword">image</span>: myrepo/api:1.4.0
+      <span class="tok-keyword">ports</span>:
+        - containerPort: 3000
+      <span class="tok-keyword">resources</span>:
+        <span class="tok-keyword">requests</span>:
+          cpu: <span class="tok-string">"100m"</span>
+          memory: <span class="tok-string">"128Mi"</span>
+        <span class="tok-keyword">limits</span>:
+          cpu: <span class="tok-string">"500m"</span>
+          memory: <span class="tok-string">"256Mi"</span></code></pre>
+      <div class="note">Thực tế hiếm khi tạo Pod trực tiếp — luôn tạo thông qua Deployment (mục 04) để có tự phục hồi và rolling update.</div>
+    </section>
+
+    <section id="k4">
+      <h2><span class="n">04</span> Deployment &amp; ReplicaSet</h2>
+      <p class="intro">Deployment quản lý ReplicaSet, ReplicaSet quản lý số lượng Pod — đây là cách chuẩn để chạy ứng dụng stateless.</p>
+      <pre><code><span class="tok-keyword">apiVersion</span>: apps/v1
+<span class="tok-keyword">kind</span>: Deployment
+<span class="tok-keyword">metadata</span>:
+  <span class="tok-keyword">name</span>: api
+<span class="tok-keyword">spec</span>:
+  <span class="tok-keyword">replicas</span>: 3
+  <span class="tok-keyword">selector</span>:
+    matchLabels:
+      app: api
+  <span class="tok-keyword">template</span>:
+    <span class="tok-keyword">metadata</span>:
+      <span class="tok-keyword">labels</span>:
+        app: api
+    <span class="tok-keyword">spec</span>:
+      <span class="tok-keyword">containers</span>:
+        - <span class="tok-keyword">name</span>: app
+          <span class="tok-keyword">image</span>: myrepo/api:1.4.0</code></pre>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>kubectl scale</code></td><td>Đổi số lượng replica.</td><td><code>kubectl scale deployment api --replicas=5</code></td></tr>
+        <tr><td><code>kubectl rollout status</code></td><td>Theo dõi tiến trình rolling update.</td><td><code>kubectl rollout status deployment/api</code></td></tr>
+        <tr><td><code>kubectl rollout undo</code></td><td>Rollback về version trước.</td><td><code>kubectl rollout undo deployment/api</code></td></tr>
+        <tr><td><code>kubectl rollout history</code></td><td>Xem lịch sử các lần deploy.</td><td><code>kubectl rollout history deployment/api</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="k5">
+      <h2><span class="n">05</span> Service</h2>
+      <p class="intro">Pod có IP thay đổi liên tục khi bị tạo lại — Service cấp một địa chỉ ổn định để gọi vào nhóm Pod phía sau.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Loại</th><th>Mô tả</th></tr>
+        <tr><td><code>ClusterIP</code> (mặc định)</td><td>Chỉ truy cập được từ bên trong cluster.</td></tr>
+        <tr><td><code>NodePort</code></td><td>Mở thêm một port cố định trên mọi node để truy cập từ ngoài cluster.</td></tr>
+        <tr><td><code>LoadBalancer</code></td><td>Cloud provider (AWS ELB/NLB) tự cấp một load balancer bên ngoài trỏ vào Service.</td></tr>
+        <tr><td><code>ExternalName</code></td><td>Ánh xạ Service sang một DNS name bên ngoài cluster.</td></tr>
+      </table></div>
+      <pre><code><span class="tok-keyword">apiVersion</span>: v1
+<span class="tok-keyword">kind</span>: Service
+<span class="tok-keyword">metadata</span>:
+  <span class="tok-keyword">name</span>: api
+<span class="tok-keyword">spec</span>:
+  <span class="tok-keyword">selector</span>:
+    app: api
+  <span class="tok-keyword">ports</span>:
+    - port: 80
+      targetPort: 3000
+  <span class="tok-keyword">type</span>: ClusterIP</code></pre>
+    </section>
+
+    <section id="k6">
+      <h2><span class="n">06</span> ConfigMap &amp; Secret</h2>
+      <p class="intro">Tách cấu hình khỏi image — cùng một image chạy được ở nhiều môi trường chỉ bằng cách đổi ConfigMap/Secret.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td>ConfigMap</td><td>Lưu cấu hình dạng plaintext (không nhạy cảm).</td><td><code>kubectl create configmap app-config --from-literal=LOG_LEVEL=info</code></td></tr>
+        <tr><td>Secret</td><td>Lưu dữ liệu nhạy cảm, được mã hóa base64 (nên kết hợp thêm encryption at rest ở etcd).</td><td><code>kubectl create secret generic db-secret --from-literal=password=changeme</code></td></tr>
+      </table></div>
+      <div class="note">Dùng trong Pod qua <code>envFrom.configMapRef</code>/<code>secretRef</code>, hoặc mount làm file qua <code>volumes.configMap</code>/<code>secret</code>.</div>
+    </section>
+
+    <section id="k7">
+      <h2><span class="n">07</span> Ingress</h2>
+      <p class="intro">Ingress định tuyến traffic HTTP(S) từ bên ngoài vào đúng Service dựa trên domain/path, cần một Ingress Controller (thường là nginx) chạy trong cluster.</p>
+      <pre><code><span class="tok-keyword">apiVersion</span>: networking.k8s.io/v1
+<span class="tok-keyword">kind</span>: Ingress
+<span class="tok-keyword">metadata</span>:
+  <span class="tok-keyword">name</span>: api-ingress
+<span class="tok-keyword">spec</span>:
+  <span class="tok-keyword">rules</span>:
+    - host: api.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 80
+  <span class="tok-keyword">tls</span>:
+    - hosts: [api.example.com]
+      secretName: api-tls</code></pre>
+      <div class="note">Trên AWS thường dùng AWS Load Balancer Controller để Ingress tự tạo Application Load Balancer — tương đương khái niệm ALB ở Bước 2, mục 07.</div>
+    </section>
+
+    <section id="k8">
+      <h2><span class="n">08</span> Volume &amp; PersistentVolume/PVC</h2>
+      <p class="intro">Giống Docker, Pod cần volume để giữ dữ liệu qua vòng đời container — Kubernetes tách riêng "nơi lưu trữ vật lý" (PV) khỏi "yêu cầu sử dụng" (PVC).</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td><code>emptyDir</code></td><td>Volume tạm, sống theo vòng đời Pod, mất khi Pod bị xóa.</td></tr>
+        <tr><td><code>hostPath</code></td><td>Mount trực tiếp một thư mục trên node — chỉ dùng cho trường hợp đặc biệt (agent, daemon).</td></tr>
+        <tr><td>PersistentVolume (PV)</td><td>Đại diện cho một vùng lưu trữ vật lý thực sự (EBS, NFS...).</td></tr>
+        <tr><td>PersistentVolumeClaim (PVC)</td><td>Yêu cầu của Pod về dung lượng/loại lưu trữ — Kubernetes tự gắn vào một PV phù hợp.</td></tr>
+        <tr><td>StorageClass</td><td>Định nghĩa loại lưu trữ (SSD, HDD...) để PV được cấp phát tự động (dynamic provisioning).</td></tr>
+      </table></div>
+    </section>
+
+    <section id="k9">
+      <h2><span class="n">09</span> Namespace &amp; RBAC</h2>
+      <p class="intro">Namespace cách ly resource theo logic (team, môi trường); RBAC kiểm soát ai được làm gì trên resource nào.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>Namespace</td><td>Không gian tên logic để nhóm resource — ví dụ tách <code>staging</code>/<code>prod</code> trong cùng cluster.</td></tr>
+        <tr><td>Role / RoleBinding</td><td>Cấp quyền trong phạm vi một namespace cụ thể.</td></tr>
+        <tr><td>ClusterRole / ClusterRoleBinding</td><td>Cấp quyền trên toàn cluster, xuyên namespace.</td></tr>
+        <tr><td>ServiceAccount</td><td>"Danh tính" cho Pod khi nó cần gọi tới kube-apiserver hoặc dịch vụ cloud.</td></tr>
+      </table></div>
+      <div class="note">Nguyên tắc least-privilege (đã học ở Bước 2) áp dụng y hệt ở đây: mỗi ServiceAccount chỉ nên có đúng quyền cần thiết qua Role, không dùng quyền cluster-admin cho mọi thứ.</div>
+    </section>
+
+    <section id="k10">
+      <h2><span class="n">10</span> Helm — package manager cho Kubernetes</h2>
+      <p class="intro">Helm đóng gói nhiều file YAML thành một "Chart" có thể cài đặt, nâng cấp, gỡ bỏ như một đơn vị duy nhất, tham số hóa qua <code>values.yaml</code>.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm / Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td>Chart</td><td>Gói các template YAML + giá trị mặc định.</td><td>&nbsp;</td></tr>
+        <tr><td>Release</td><td>Một lần cài đặt cụ thể của Chart vào cluster.</td><td>&nbsp;</td></tr>
+        <tr><td><code>values.yaml</code></td><td>File cấu hình override giá trị mặc định của Chart.</td><td>&nbsp;</td></tr>
+        <tr><td><code>helm install</code></td><td>Cài đặt Chart thành một Release mới.</td><td><code>helm install api ./chart -f values-prod.yaml</code></td></tr>
+        <tr><td><code>helm upgrade</code></td><td>Cập nhật Release đã tồn tại.</td><td><code>helm upgrade api ./chart</code></td></tr>
+        <tr><td><code>helm rollback</code></td><td>Quay lại revision trước của Release.</td><td><code>helm rollback api 2</code></td></tr>
+        <tr><td><code>helm uninstall</code></td><td>Gỡ bỏ Release.</td><td><code>helm uninstall api</code></td></tr>
+      </table></div>
+    </section>
+
+    <section id="k11">
+      <h2><span class="n">11</span> Debug &amp; troubleshooting</h2>
+      <p class="intro">Pod không chạy đúng — luôn bắt đầu bằng <code>describe</code> rồi mới tới <code>logs</code>.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Lệnh</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td><code>kubectl describe pod</code></td><td>Xem sự kiện (Events) gần nhất — lý do phổ biến nhất để tìm ra vấn đề.</td><td><code>kubectl describe pod api-7d9f</code></td></tr>
+        <tr><td><code>kubectl logs --previous</code></td><td>Xem log của lần chạy trước, khi container vừa bị restart.</td><td><code>kubectl logs api-7d9f --previous</code></td></tr>
+        <tr><td><code>kubectl get events --sort-by</code></td><td>Xem toàn bộ sự kiện trong namespace theo thời gian.</td><td><code>kubectl get events --sort-by=.lastTimestamp</code></td></tr>
+        <tr><td><code>kubectl top pod/node</code></td><td>Xem CPU/RAM thực tế đang dùng (cần metrics-server).</td><td><code>kubectl top pod -n prod</code></td></tr>
+      </table></div>
+      <h3>Các trạng thái Pod hay gặp</h3>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Trạng thái</th><th>Nguyên nhân thường gặp</th></tr>
+        <tr><td><code>Pending</code></td><td>Không đủ tài nguyên trên node, hoặc PVC chưa được gắn.</td></tr>
+        <tr><td><code>ImagePullBackOff</code></td><td>Sai tên image/tag, hoặc thiếu quyền pull từ private registry.</td></tr>
+        <tr><td><code>CrashLoopBackOff</code></td><td>Ứng dụng bên trong container crash ngay khi khởi động — xem <code>logs --previous</code>.</td></tr>
+        <tr><td><code>OOMKilled</code></td><td>Container vượt quá <code>resources.limits.memory</code> và bị kernel kill.</td></tr>
+      </table></div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

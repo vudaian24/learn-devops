@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bước 6 · Monitoring &amp; Observability</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --ink:#1e2733;
+    --ink-soft:#66707c;
+    --accent:#2f6fed;
+    --accent-dark:#1d4fbe;
+    --accent-bg:#e8f0ff;
+    --border:#dfe4ec;
+    --code-bg:#eef1f8;
+    --code-ink:#1d4fbe;
+    --warn-bg:#fff3e6;
+    --warn-border:#e08a2b;
+    --warn-ink:#8a4b0c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:15.5px;
+    line-height:1.65;
+  }
+  code, pre{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+  a{ color:var(--accent); }
+
+  .course-nav{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:20px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:12px 24px;
+  }
+  .course-nav a.home{ color:var(--ink); text-decoration:none; font-weight:600; font-size:14px; }
+  .course-nav .steps{ display:flex; flex-wrap:wrap; gap:8px; margin-left:auto; justify-content:flex-end; }
+  .course-nav .steps a{
+    text-decoration:none; font-size:13px; color:var(--ink-soft);
+    padding:6px 12px; border-radius:6px; border:1px solid transparent;
+  }
+  .course-nav .steps a.active{ background:var(--accent-bg); color:var(--accent-dark); font-weight:600; }
+  .course-nav .steps a:hover:not(.active){ border-color:var(--border); }
+
+  .layout{
+    max-width:1020px;
+    margin:0 auto;
+    padding:32px 24px 100px;
+    position:relative;
+  }
+
+  nav.toc{
+    position:fixed;
+    top:102px;
+    left:max(24px, calc((100vw - 1020px) / 2 + 24px));
+    width:240px;
+    max-height:calc(100vh - 126px);
+    overflow-y:auto;
+  }
+
+  main{ display:block; margin-left:280px; }
+
+  @media (max-width:860px){
+    nav.toc{ position:static; left:auto; top:auto; width:auto; max-height:none; margin-bottom:28px; }
+    main{ margin-left:0; }
+  }
+  nav.toc .eyebrow{ font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px; }
+  nav.toc ol{ list-style:none; margin:0; padding:0; counter-reset:toc; }
+  nav.toc li{ counter-increment:toc; }
+  nav.toc a{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:15px; padding:6px 8px; border-radius:6px; }
+  nav.toc a:hover{ background:var(--accent-bg); color:var(--accent-dark); }
+  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:15px; font-weight:600; flex:none; }
+
+  header.hero{ max-width:720px; margin:0 auto 8px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+  header.hero .eyebrow{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600; }
+  header.hero h1{ font-size:30px; margin:0 0 12px; }
+  header.hero p{ color:var(--ink-soft); max-width:62ch; margin:0 0 8px; }
+
+  section{ max-width:720px; margin:44px auto 0; scroll-margin-top:80px; }
+  section h2{ font-size:21px; margin:0 0 6px; display:flex; align-items:baseline; gap:10px; }
+  section h2 .n{ color:var(--accent); }
+  section > p.intro{ color:var(--ink-soft); margin:0 0 18px; max-width:65ch; }
+  section h3{ font-size:15px; margin:24px 0 8px; color:var(--accent-dark); }
+
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:8px; margin-bottom:14px; }
+  table.cmd{ width:100%; border-collapse:collapse; background:var(--surface); font-size:13.5px; }
+  table.cmd th{ text-align:left; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft); padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.cmd td{ padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.cmd tr:last-child td{ border-bottom:none; }
+  table.cmd td:first-child{ white-space:nowrap; }
+  code{ background:var(--code-bg); color:var(--code-ink); padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:400; border:1px solid rgba(29,79,190,0.12); }
+  table.cmd code{ padding:2px 5px; font-size:13px; }
+
+  pre{ background:var(--code-bg); color:var(--ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
+  pre code{ background:none; padding:0; border:none; font-weight:400; color:inherit; }
+  .tok-comment{ color:#7d8590; font-style:italic; }
+  .tok-string{ color:#b45309; }
+  .tok-keyword{ color:#7c3aed; }
+  .tok-var{ color:#0f766e; }
+  .tok-section{ color:var(--accent-dark); }
+
+  .note{ background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--ink); margin:14px 0; }
+  .warn{ background:var(--warn-bg); border-left:3px solid var(--warn-border); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--warn-ink); margin:14px 0; }
+
+  .checklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .checklist li{ display:flex; gap:10px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:14px; }
+  .checklist li::before{ content:"✓"; color:var(--accent); font-weight:700; flex:none; }
+</style>
+</head>
+<body>
+
+<div class="course-nav">
+  <a class="home" href="index.html">← Học DevOps</a>
+  <div class="steps">
+    <a href="01-linux-devops.html">Bước 1 · Linux</a>
+    <a href="02-networking-security.html">Bước 2 · Mạng &amp; Bảo mật</a>
+    <a href="03-docker.html">Bước 3 · Docker</a>
+    <a href="04-kubernetes.html">Bước 4 · Kubernetes</a>
+    <a href="05-ci-cd.html">Bước 5 · CI/CD</a>
+    <a class="active" href="06-monitoring-observability.html">Bước 6 · Monitoring</a>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="toc">
+    <p class="eyebrow">Mục lục</p>
+    <ol>
+      <li><a href="#m1">3 trụ cột Observability</a></li>
+      <li><a href="#m2">Prometheus — kiến trúc</a></li>
+      <li><a href="#m3">PromQL cơ bản</a></li>
+      <li><a href="#m4">Grafana</a></li>
+      <li><a href="#m5">Alertmanager</a></li>
+      <li><a href="#m6">ELK Stack</a></li>
+      <li><a href="#m7">Loki + Promtail</a></li>
+      <li><a href="#m8">So sánh ELK vs Loki</a></li>
+      <li><a href="#m9">SLI / SLO / SLA</a></li>
+      <li><a href="#m10">Best practices</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Bước 06</p>
+      <h1>Monitoring &amp; Observability cho DevOps</h1>
+      <p>Biết hệ thống đang khỏe hay không trước khi người dùng phải báo lỗi. 10 phần đi từ 3 trụ cột observability, Prometheus/Grafana, ELK/Loki, đến SLI/SLO và best practices alerting.</p>
+    </header>
+
+    <section id="m1">
+      <h2><span class="n">01</span> 3 trụ cột Observability</h2>
+      <p class="intro">Observability không chỉ là "có dashboard" — là khả năng trả lời được câu hỏi "tại sao hệ thống đang như thế này" chỉ từ dữ liệu nó phát ra.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Trụ cột</th><th>Trả lời câu hỏi</th><th>Công cụ tiêu biểu</th></tr>
+        <tr><td>Metrics</td><td>"Hệ thống đang ở trạng thái nào theo thời gian?" — số liệu tổng hợp, rẻ để lưu trữ lâu dài.</td><td>Prometheus</td></tr>
+        <tr><td>Logs</td><td>"Chính xác điều gì đã xảy ra ở sự kiện này?" — chi tiết từng dòng, tốn chi phí lưu trữ hơn.</td><td>ELK, Loki</td></tr>
+        <tr><td>Traces</td><td>"Request này đi qua những service nào, chậm ở đâu?" — theo dõi 1 request xuyên suốt nhiều service.</td><td>Jaeger, Zipkin, OpenTelemetry</td></tr>
+      </table></div>
+      <div class="note">Ba trụ cột bổ trợ nhau: metric báo "có lỗi tăng đột biến", log cho biết "lỗi cụ thể là gì", trace cho biết "chậm ở service nào trong chuỗi gọi".</div>
+    </section>
+
+    <section id="m2">
+      <h2><span class="n">02</span> Prometheus — kiến trúc &amp; khái niệm</h2>
+      <p class="intro">Prometheus chủ động "kéo" (pull) metrics từ các target theo chu kỳ, thay vì chờ ứng dụng chủ động đẩy dữ liệu tới.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Thành phần</th><th>Mô tả</th></tr>
+        <tr><td>Prometheus server</td><td>Định kỳ scrape metrics và lưu dưới dạng time-series.</td></tr>
+        <tr><td>Exporter</td><td>Chuyển đổi metrics của hệ thống khác sang định dạng Prometheus hiểu được (ví dụ <code>node_exporter</code> cho metrics OS).</td></tr>
+        <tr><td>Pushgateway</td><td>Nơi trung gian cho các job ngắn hạn (batch job) không tồn tại đủ lâu để bị scrape trực tiếp.</td></tr>
+        <tr><td>Service discovery</td><td>Tự động tìm target mới (ví dụ Pod trong Kubernetes) mà không cần khai báo tay.</td></tr>
+        <tr><td>Alertmanager</td><td>Nhận rule cảnh báo từ Prometheus, xử lý routing/dedup/gửi thông báo (xem mục 05).</td></tr>
+      </table></div>
+      <pre><code><span class="tok-keyword">scrape_configs</span>:
+  - <span class="tok-keyword">job_name</span>: <span class="tok-string">"api"</span>
+    <span class="tok-keyword">static_configs</span>:
+      - targets: [<span class="tok-string">"api.internal:9100"</span>]
+    <span class="tok-keyword">scrape_interval</span>: 15s</code></pre>
+    </section>
+
+    <section id="m3">
+      <h2><span class="n">03</span> PromQL cơ bản</h2>
+      <p class="intro">PromQL là ngôn ngữ truy vấn để đọc và tính toán trên dữ liệu Prometheus đã lưu.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Query</th><th>Ý nghĩa</th></tr>
+        <tr><td><code>up</code></td><td>1 nếu target đang được scrape thành công, 0 nếu không — kiểm tra target còn sống.</td></tr>
+        <tr><td><code>rate(http_requests_total[5m])</code></td><td>Tốc độ request trung bình mỗi giây trong 5 phút gần nhất.</td></tr>
+        <tr><td><code>sum by (job) (rate(...[5m]))</code></td><td>Cộng dồn tốc độ request, nhóm theo nhãn <code>job</code>.</td></tr>
+        <tr><td><code>histogram_quantile(0.99, ...)</code></td><td>Tính latency p99 từ dữ liệu histogram — chỉ số cốt lõi để đo trải nghiệm người dùng.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="m4">
+      <h2><span class="n">04</span> Grafana</h2>
+      <p class="intro">Grafana không lưu dữ liệu — nó trực quan hóa dữ liệu từ nguồn khác (Prometheus, Loki, Elasticsearch...).</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>Data source</td><td>Nguồn dữ liệu Grafana kết nối vào để lấy số liệu (Prometheus, Loki...).</td></tr>
+        <tr><td>Dashboard</td><td>Tập hợp nhiều Panel hiển thị cùng lúc.</td></tr>
+        <tr><td>Panel</td><td>Một biểu đồ/bảng cụ thể, gắn với một query.</td></tr>
+        <tr><td>Variable (template)</td><td>Biến cho phép lọc dashboard động, ví dụ chọn service/environment.</td></tr>
+        <tr><td>Alert rule</td><td>Điều kiện trên một query, khi vi phạm sẽ gửi cảnh báo.</td></tr>
+      </table></div>
+      <div class="note">Quy trình cơ bản: thêm Prometheus làm Data source → import hoặc tự tạo Dashboard → mỗi Panel gắn một PromQL query.</div>
+    </section>
+
+    <section id="m5">
+      <h2><span class="n">05</span> Alerting với Alertmanager</h2>
+      <p class="intro">Alertmanager nhận alert thô từ Prometheus và quyết định gửi tới ai, khi nào, gộp lại như thế nào.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th></tr>
+        <tr><td>Route</td><td>Quy tắc định tuyến alert tới đúng receiver dựa trên label (ví dụ team, severity).</td></tr>
+        <tr><td>Receiver</td><td>Kênh nhận thông báo — Slack, email, PagerDuty, webhook.</td></tr>
+        <tr><td>Grouping</td><td>Gộp nhiều alert liên quan thành một thông báo duy nhất, tránh spam.</td></tr>
+        <tr><td>Inhibition</td><td>Ẩn bớt alert phụ khi đã có alert nghiêm trọng hơn cùng nguyên nhân đang bật.</td></tr>
+        <tr><td>Silence</td><td>Tạm tắt alert trong một khoảng thời gian (ví dụ khi đang bảo trì có kế hoạch).</td></tr>
+      </table></div>
+    </section>
+
+    <section id="m6">
+      <h2><span class="n">06</span> ELK Stack</h2>
+      <p class="intro">ELK là bộ ba công cụ kinh điển để thu thập, lưu trữ, và tìm kiếm log tập trung.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Thành phần</th><th>Mô tả</th></tr>
+        <tr><td>Elasticsearch</td><td>Lưu trữ và index log dạng document, hỗ trợ full-text search mạnh.</td></tr>
+        <tr><td>Logstash</td><td>Thu thập, phân tích (parse), chuyển đổi log trước khi đưa vào Elasticsearch.</td></tr>
+        <tr><td>Kibana</td><td>Giao diện trực quan hóa, tìm kiếm, và tạo dashboard trên dữ liệu Elasticsearch.</td></tr>
+        <tr><td>Beats (Filebeat/Metricbeat)</td><td>Agent nhẹ cài trên từng máy để thu thập log/metrics gửi vào Logstash hoặc thẳng Elasticsearch.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="m7">
+      <h2><span class="n">07</span> Loki + Promtail</h2>
+      <p class="intro">Loki là hệ thống log của hệ sinh thái Prometheus/Grafana — thiết kế để rẻ và đơn giản hơn ELK.</p>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Thành phần</th><th>Mô tả</th></tr>
+        <tr><td>Loki</td><td>Lưu trữ log, index theo label (giống Prometheus) thay vì full-text index toàn bộ nội dung — rẻ hơn nhiều.</td></tr>
+        <tr><td>Promtail</td><td>Agent thu thập log từ file/container và đẩy vào Loki, tự gắn label tương tự Prometheus.</td></tr>
+        <tr><td>LogQL</td><td>Ngôn ngữ truy vấn log của Loki, cú pháp gợi nhớ tới PromQL.</td></tr>
+      </table></div>
+    </section>
+
+    <section id="m8">
+      <h2><span class="n">08</span> So sánh ELK vs Loki</h2>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Tiêu chí</th><th>ELK</th><th>Loki</th></tr>
+        <tr><td>Chi phí lưu trữ</td><td>Cao hơn — full-text index toàn bộ log.</td><td>Thấp hơn — chỉ index label, nội dung log nén lại.</td></tr>
+        <tr><td>Tìm kiếm full-text</td><td>Rất mạnh, tìm theo bất kỳ từ khóa nào trong nội dung.</td><td>Hạn chế hơn, tối ưu cho lọc theo label trước rồi mới grep nội dung.</td></tr>
+        <tr><td>Độ phức tạp vận hành</td><td>Cao — nhiều thành phần, cần tune Elasticsearch cluster.</td><td>Thấp hơn, kiến trúc đơn giản hơn.</td></tr>
+        <tr><td>Tích hợp Grafana</td><td>Cần cấu hình thêm.</td><td>Tích hợp gần như liền mạch (cùng hệ sinh thái).</td></tr>
+      </table></div>
+      <div class="note">Chọn ELK khi cần tìm kiếm full-text sâu và đã có nhân lực vận hành; chọn Loki khi ưu tiên chi phí thấp và đã dùng sẵn Prometheus/Grafana.</div>
+    </section>
+
+    <section id="m9">
+      <h2><span class="n">09</span> SLI / SLO / SLA &amp; Golden Signals</h2>
+      <div class="table-wrap"><table class="cmd">
+        <tr><th>Khái niệm</th><th>Mô tả</th><th>Ví dụ</th></tr>
+        <tr><td>SLI (Indicator)</td><td>Một chỉ số đo được cụ thể phản ánh trải nghiệm người dùng.</td><td>Latency p99, tỷ lệ lỗi 5xx</td></tr>
+        <tr><td>SLO (Objective)</td><td>Mục tiêu nội bộ cho SLI, dùng để quyết định có nên ưu tiên fix reliability hay ship feature mới.</td><td>99.9% request có latency &lt; 300ms trong 30 ngày</td></tr>
+        <tr><td>SLA (Agreement)</td><td>Cam kết chính thức với khách hàng, thường kèm điều khoản bồi hoàn nếu vi phạm.</td><td>Uptime 99.95%, hoàn phí nếu không đạt</td></tr>
+        <tr><td>Golden Signals</td><td>4 nhóm chỉ số nên theo dõi cho mọi service.</td><td>Latency, Traffic, Errors, Saturation</td></tr>
+      </table></div>
+    </section>
+
+    <section id="m10">
+      <h2><span class="n">10</span> Best practices giám sát production</h2>
+      <ul class="checklist">
+        <li>Alert dựa trên triệu chứng ảnh hưởng người dùng (symptom), không dựa trên nguyên nhân nội bộ (cause).</li>
+        <li>Mỗi alert phải actionable — nếu nhận được mà không biết làm gì tiếp theo, xóa hoặc sửa lại alert đó.</li>
+        <li>Dashboard cho mỗi service nên hiển thị đủ 4 Golden Signals, không chỉ CPU/RAM.</li>
+        <li>Log nên ở dạng structured (JSON) để dễ query, thay vì text tự do khó parse.</li>
+        <li>Đặt retention policy hợp lý cho metrics/log — lưu càng lâu càng tốn chi phí.</li>
+        <li>Gắn cùng một request ID/trace ID xuyên suốt log, metric, và trace để correlate khi debug.</li>
+        <li>Định kỳ rà soát và xóa alert không còn actionable để tránh alert fatigue.</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
