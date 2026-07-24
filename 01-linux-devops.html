@@ -54,10 +54,10 @@
 
   nav.toc{
     position:fixed;
-    top:64px;
+    top:102px;
     left:max(24px, calc((100vw - 1020px) / 2 + 24px));
     width:240px;
-    max-height:calc(100vh - 88px);
+    max-height:calc(100vh - 126px);
     overflow-y:auto;
   }
 
@@ -72,7 +72,7 @@
   nav.toc li{ counter-increment:toc; }
   nav.toc a{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:15px; padding:6px 8px; border-radius:6px; }
   nav.toc a:hover{ background:var(--accent-bg); color:var(--accent-dark); }
-  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:12.5px; flex:none; }
+  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:15px; font-weight:600; flex:none; }
 
   header.hero{ max-width:720px; margin:0 auto 8px; padding-bottom:24px; border-bottom:1px solid var(--border); }
   header.hero .eyebrow{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600; }
@@ -91,18 +91,18 @@
   table.cmd td{ padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
   table.cmd tr:last-child td{ border-bottom:none; }
   table.cmd td:first-child{ white-space:nowrap; }
-  table.cmd code{ background:var(--code-bg); color:var(--code-ink); padding:2px 5px; border-radius:4px; font-size:13px; }
+  code{ background:var(--code-bg); color:var(--code-ink); padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:400; border:1px solid rgba(29,79,190,0.12); }
+  table.cmd code{ padding:2px 5px; font-size:13px; }
 
-  pre{ background:var(--code-bg); color:var(--code-ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
-  pre code{ background:none; padding:0; color:inherit; }
+  pre{ background:var(--code-bg); color:var(--ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
+  pre code{ background:none; padding:0; border:none; font-weight:400; color:inherit; }
+  .tok-comment{ color:#7d8590; font-style:italic; }
+  .tok-string{ color:#b45309; }
+  .tok-keyword{ color:#7c3aed; }
+  .tok-var{ color:#0f766e; }
+  .tok-section{ color:var(--accent-dark); }
 
   .note{ background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--ink); margin:14px 0; }
-
-  .roadmap .step{ display:grid; grid-template-columns:24px 1fr; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
-  .roadmap .step:last-child{ border-bottom:none; }
-  .roadmap .step .dot{ width:8px;height:8px;border-radius:50%; background:var(--accent); margin-top:7px; justify-self:center; }
-  .roadmap .step h4{ margin:0 0 3px; font-size:14px; }
-  .roadmap .step p{ margin:0; color:var(--ink-soft); font-size:13px; }
 
   footer{ max-width:720px; margin:56px auto 0; padding-top:20px; border-top:1px solid var(--border); color:var(--ink-soft); font-size:12.5px; }
 </style>
@@ -139,7 +139,6 @@
       <li><a href="#s16">SSH &amp; bảo mật</a></li>
       <li><a href="#s17">Namespaces &amp; container</a></li>
       <li><a href="#s18">Công cụ hay dùng</a></li>
-      <li><a href="#s19">Bước tiếp theo</a></li>
     </ol>
   </nav>
 
@@ -275,17 +274,17 @@
         <tr><td><code>systemd-analyze</code></td><td>Thời gian boot, service nào khởi động chậm.</td><td><code>systemd-analyze blame</code></td></tr>
       </table></div>
       <div class="note">Unit file cơ bản (<code>/etc/systemd/system/myapp.service</code>):
-        <pre><code>[Unit]
-Description=My App
-After=network.target
+        <pre><code><span class="tok-section">[Unit]</span>
+<span class="tok-keyword">Description</span>=My App
+<span class="tok-keyword">After</span>=network.target
 
-[Service]
-ExecStart=/opt/app/run.sh
-Restart=on-failure
-User=app
+<span class="tok-section">[Service]</span>
+<span class="tok-keyword">ExecStart</span>=/opt/app/run.sh
+<span class="tok-keyword">Restart</span>=on-failure
+<span class="tok-keyword">User</span>=app
 
-[Install]
-WantedBy=multi-user.target</code></pre>
+<span class="tok-section">[Install]</span>
+<span class="tok-keyword">WantedBy</span>=multi-user.target</code></pre>
       </div>
     </section>
 
@@ -421,25 +420,25 @@ WantedBy=multi-user.target</code></pre>
     <section id="s15">
       <h2><span class="n">15</span> Viết Bash script cơ bản</h2>
       <p class="intro">Tự động hóa là lý do DevOps tồn tại. Một script tối thiểu cần: shebang, xử lý tham số, kiểm tra điều kiện, và exit code rõ ràng.</p>
-      <pre><code>#!/usr/bin/env bash
-set -euo pipefail   # dừng ngay khi có lỗi, biến chưa khai báo, hoặc lỗi trong pipe
+      <pre><code><span class="tok-comment">#!/usr/bin/env bash</span>
+<span class="tok-keyword">set</span> -euo pipefail   <span class="tok-comment"># dừng ngay khi có lỗi, biến chưa khai báo, hoặc lỗi trong pipe</span>
 
-ENV="${1:-staging}"
-LOG_DIR="/var/log/deploy"
+ENV=<span class="tok-string">"${1:-staging}"</span>
+LOG_DIR=<span class="tok-string">"/var/log/deploy"</span>
 
-if [[ ! -d "$LOG_DIR" ]]; then
-  mkdir -p "$LOG_DIR"
-fi
+<span class="tok-keyword">if</span> [[ ! -d <span class="tok-var">"$LOG_DIR"</span> ]]; <span class="tok-keyword">then</span>
+  mkdir -p <span class="tok-var">"$LOG_DIR"</span>
+<span class="tok-keyword">fi</span>
 
-for service in api worker scheduler; do
-  echo "Deploying $service to $ENV..."
-  systemctl restart "$service" || {
-    echo "Failed to restart $service" &gt;&amp;2
-    exit 1
+<span class="tok-keyword">for</span> service <span class="tok-keyword">in</span> api worker scheduler; <span class="tok-keyword">do</span>
+  echo <span class="tok-string">"Deploying <span class="tok-var">$service</span> to <span class="tok-var">$ENV</span>..."</span>
+  systemctl restart <span class="tok-var">"$service"</span> || {
+    echo <span class="tok-string">"Failed to restart <span class="tok-var">$service</span>"</span> &gt;&amp;2
+    <span class="tok-keyword">exit</span> 1
   }
-done
+<span class="tok-keyword">done</span>
 
-echo "Deploy to $ENV completed."</code></pre>
+echo <span class="tok-string">"Deploy to <span class="tok-var">$ENV</span> completed."</span></code></pre>
       <div class="table-wrap"><table class="cmd">
         <tr><th>Cú pháp</th><th>Mô tả</th></tr>
         <tr><td><code>$1 $2 … $@ $#</code></td><td>Tham số dòng lệnh: từng tham số, toàn bộ, và số lượng.</td></tr>
@@ -485,14 +484,6 @@ echo "Deploy to $ENV completed."</code></pre>
         <tr><td><code>tmux</code></td><td>Giữ session terminal sống dù mất kết nối SSH.</td><td><code>tmux new -s deploy</code></td></tr>
         <tr><td><code>strace</code></td><td>Theo dõi system call của một tiến trình.</td><td><code>strace -p 1234</code></td></tr>
       </table></div>
-    </section>
-
-    <section id="s19">
-      <h2><span class="n">19</span> Bước tiếp theo</h2>
-      <p class="intro">Sau khi vững Linux, bước tiếp theo trong lộ trình này là Mạng &amp; Bảo mật cơ bản.</p>
-      <div class="roadmap">
-        <div class="step"><span class="dot"></span><div><h4>Bước 2 · Mạng &amp; Bảo mật</h4><p>TCP/IP, DNS, TLS, firewall, VPN, VPC trên AWS — <a href="02-networking-security.html">mở tài liệu →</a></p></div></div>
-      </div>
     </section>
 
     <footer>

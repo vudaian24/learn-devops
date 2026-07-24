@@ -57,10 +57,10 @@
 
   nav.toc{
     position:fixed;
-    top:64px;
+    top:102px;
     left:max(24px, calc((100vw - 1020px) / 2 + 24px));
     width:240px;
-    max-height:calc(100vh - 88px);
+    max-height:calc(100vh - 126px);
     overflow-y:auto;
   }
 
@@ -75,7 +75,7 @@
   nav.toc li{ counter-increment:toc; }
   nav.toc a{ display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink-soft); font-size:15px; padding:6px 8px; border-radius:6px; }
   nav.toc a:hover{ background:var(--accent-bg); color:var(--accent-dark); }
-  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:12.5px; flex:none; }
+  nav.toc a::before{ content:counter(toc,decimal-leading-zero); color:var(--accent); font-size:15px; font-weight:600; flex:none; }
 
   header.hero{ max-width:720px; margin:0 auto 8px; padding-bottom:24px; border-bottom:1px solid var(--border); }
   header.hero .eyebrow{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; font-weight:600; }
@@ -94,10 +94,16 @@
   table.cmd td{ padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
   table.cmd tr:last-child td{ border-bottom:none; }
   table.cmd td:first-child{ white-space:nowrap; }
-  table.cmd code{ background:var(--code-bg); color:var(--code-ink); padding:2px 5px; border-radius:4px; font-size:13px; }
+  code{ background:var(--code-bg); color:var(--code-ink); padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:400; border:1px solid rgba(29,79,190,0.12); }
+  table.cmd code{ padding:2px 5px; font-size:13px; }
 
-  pre{ background:var(--code-bg); color:var(--code-ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
-  pre code{ background:none; padding:0; color:inherit; }
+  pre{ background:var(--code-bg); color:var(--ink); padding:12px 14px; border-radius:8px; overflow-x:auto; font-size:13px; border:1px solid var(--border); }
+  pre code{ background:none; padding:0; border:none; font-weight:400; color:inherit; }
+  .tok-comment{ color:#7d8590; font-style:italic; }
+  .tok-string{ color:#b45309; }
+  .tok-keyword{ color:#7c3aed; }
+  .tok-var{ color:#0f766e; }
+  .tok-section{ color:var(--accent-dark); }
 
   .note{ background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--ink); margin:14px 0; }
   .warn{ background:var(--warn-bg); border-left:3px solid var(--warn-border); border-radius:6px; padding:10px 14px; font-size:13.5px; color:var(--warn-ink); margin:14px 0; }
@@ -112,12 +118,6 @@
   .checklist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
   .checklist li{ display:flex; gap:10px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:14px; }
   .checklist li::before{ content:"✓"; color:var(--accent); font-weight:700; flex:none; }
-
-  .roadmap .step{ display:grid; grid-template-columns:24px 1fr; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
-  .roadmap .step:last-child{ border-bottom:none; }
-  .roadmap .step .dot{ width:8px;height:8px;border-radius:50%; background:var(--accent); margin-top:7px; justify-self:center; }
-  .roadmap .step h4{ margin:0 0 3px; font-size:14px; }
-  .roadmap .step p{ margin:0; color:var(--ink-soft); font-size:13px; }
 
   footer{ max-width:720px; margin:56px auto 0; padding-top:20px; border-top:1px solid var(--border); color:var(--ink-soft); font-size:12.5px; }
 </style>
@@ -151,7 +151,6 @@
       <li><a href="#n13">Nguyên tắc bảo mật</a></li>
       <li><a href="#n14">Rủi ro thường gặp</a></li>
       <li><a href="#n15">Checklist bảo mật</a></li>
-      <li><a href="#n16">Bước tiếp theo</a></li>
     </ol>
   </nav>
 
@@ -408,18 +407,6 @@
         <li>Backup dữ liệu được test khôi phục định kỳ, không chỉ tạo backup rồi bỏ đó.</li>
         <li>Có cảnh báo tự động khi certificate hoặc credential sắp hết hạn.</li>
       </ul>
-    </section>
-
-    <section id="n16">
-      <h2><span class="n">16</span> Bước tiếp theo</h2>
-      <p class="intro">Sau Mạng &amp; Bảo mật, các bước tiếp theo trong lộ trình DevOps thường là:</p>
-      <div class="roadmap">
-        <div class="step"><span class="dot"></span><div><h4>Docker</h4><p>Đóng gói ứng dụng thành container, hiểu networking giữa các container.</p></div></div>
-        <div class="step"><span class="dot"></span><div><h4>Kubernetes</h4><p>Điều phối container ở quy mô lớn, Network Policy áp dụng đúng kiến thức firewall ở mục 08.</p></div></div>
-        <div class="step"><span class="dot"></span><div><h4>Terraform (Infrastructure as Code)</h4><p>Định nghĩa VPC, Security Group, Load Balancer ở mục 07-08-12 bằng code — bạn đã có sẵn repo để thực hành.</p></div></div>
-        <div class="step"><span class="dot"></span><div><h4>CI/CD &amp; Observability</h4><p>Tự động hóa deploy và giám sát hệ thống production.</p></div></div>
-      </div>
-      <div class="note">Các bước này sẽ được bổ sung dần vào mục lục ở <a href="index.html">trang chủ</a>.</div>
     </section>
 
     <footer>
